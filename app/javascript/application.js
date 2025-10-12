@@ -11,7 +11,7 @@ document.addEventListener("turbo:load", () => {
   document.querySelectorAll('.tom-select').forEach((el) => {
     new TomSelect(el, {
       plugins: ['remove_button'],   // タグに×ボタンを付ける
-      placeholder: '選択してください',
+      placeholder: '🔍 検索・複数選択が可能です',
       maxItems: null                // 制限なし（null）
     })
   })
