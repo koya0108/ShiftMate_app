@@ -35,6 +35,11 @@
     </div>
   <% end %>
 
+  <div class="pagination-wrapper text-center">
+  <%= paginate @staffs, theme: 'bootstrap-5',
+              pagination_class: "pagination-sm flex-wrap justify-content-center",
+              nav_class: "d-inline-block" %>
+  </div>
   <div class="mt-4 text-center">
     <%= link_to "新規登録", new_project_staff_path(@project), class: "btn btn-warning btn-lg shadow" %>
   </div>

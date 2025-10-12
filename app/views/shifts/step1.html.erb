@@ -15,17 +15,17 @@
 
         <!-- スタッフ選択 -->
         <div class="mb-4">
-          <%= label_tag :staff_ids, "スタッフを選択 (複数可)", class: "form-label fw-bold" %>
+          <%= label_tag :staff_ids, "スタッフ", class: "form-label fw-bold" %>
           <%= select_tag "staff_ids[]",
                 options_from_collection_for_select(@staffs, :id, :name, @selected_staff_ids),
                 multiple: true,
                 class: "form-select tom-select" %>
-          <small class="text-muted">検索や複数選択が可能です</small>
+          <small class="text-muted">  </small>
         </div>
 
         <!-- 休憩所選択 -->
         <div class="mb-4">
-          <%= label_tag :break_room_ids, "休憩室を選択 (複数可)", class: "form-label fw-bold" %>
+          <%= label_tag :break_room_ids, "休憩室", class: "form-label fw-bold" %>
           <%= select_tag "break_room_ids[]",
                 options_from_collection_for_select(@break_rooms, :id, :name, @selected_break_room_ids),
                 multiple: true,

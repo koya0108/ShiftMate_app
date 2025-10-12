@@ -3,7 +3,7 @@ class StaffsController < ApplicationController
   before_action :set_staff, only: [ :edit, :update, :destroy ]
 
   def index
-    @staffs = @project.staffs
+    @staffs = @project.staffs.page(params[:page]).per(20)
   end
 
   def new
