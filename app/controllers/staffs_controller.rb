@@ -3,7 +3,10 @@ class StaffsController < ApplicationController
   before_action :set_staff, only: [ :edit, :update, :destroy ]
 
   def index
-    @staffs = @project.staffs.page(params[:page]).per(20)
+    # ransack用検索オブジェクトを作成
+    @q = @project.staffs.ransack(params[:q])
+    # 検索結果をページネーション付きで取得
+    @staffs = @q.result(distinct: true).page(params[:page]).per(20)
   end
 
   def new
