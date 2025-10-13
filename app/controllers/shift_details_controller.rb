@@ -5,14 +5,13 @@ class ShiftDetailsController < ApplicationController
     attrs = shift_detail_params.to_h
 
     if attrs["rest_start_time"].present?
-      attrs["rest_start_time"] = build_time(attrs["rest_start_time"].to_i)
-    end
-
-    if attrs["rest_end_time"].present?
-      attrs["rest_end_time"] = build_time(attrs["rest_end_time"].to_i)
+      start_time = build_time(attrs["rest_start_time"].to_i)
+      attrs["rest_start_time"] = start_time
+      attrs["rest_end_time"] = start_time + 2.hours
     end
 
     if @shift_detail.update(attrs)
+      result =  to_detail_json(@shift_detail)
       render json: { success: true, detail: to_detail_json(@shift_detail) }
     else
       # DBの正しい状態に戻す
@@ -32,7 +31,7 @@ class ShiftDetailsController < ApplicationController
   end
 
   def shift_detail_params
-    permitted = params.require(:shift_detail).permit(:rest_start_time, :rest_end_time, :break_room_id, :group_id, :comment)
+    permitted = params.require(:shift_detail).permit(:rest_start_time, :break_room_id, :group_id, :comment)
     # 未所属は nil に統一する
     permitted[:group_id] = nil if permitted[:group_id].blank? || permitted[:group_id].to_i == 0
     permitted
@@ -41,23 +40,42 @@ class ShiftDetailsController < ApplicationController
   # "26" → 翌日の 2:00 に変換
   def build_time(hour_value)
     base_date = @shift_detail.shift.shift_date
-    hour = hour_value % 24       # 25 → 1
-    day_offset = hour_value / 24 # 25 → 1
-    Time.zone.local(base_date.year, base_date.month, base_date.day, hour) + day_offset.days
+
+    if hour_value >= 24
+      date = base_date + 1.day
+      hour = hour_value -24
+    else
+      date = base_date
+      hour = hour_value
+    end
+
+    Time.zone.local(date.year, date.month, date.day, hour)
   end
 
   # JSONレスポンス
   def to_detail_json(detail)
+    base_date = detail.shift.shift_date.in_time_zone("Tokyo")
+    s = detail.rest_start_time.in_time_zone("Tokyo")
+    e = detail.rest_end_time.in_time_zone("Tokyo")
+
+    rest_start_hour =
+      if s.to_date > base_date.to_date
+        s.hour + 24
+      else
+        s.hour
+      end
+
+    rest_end_hour =
+      if e.to_date > base_date.to_date
+        e.hour + 24
+      else
+        e.hour
+      end
+
     {
       id: detail.id,
-      rest_start_time: (18..33).find do |h|
-        detail.rest_start_time.hour == (h % 24) &&
-        (h >= 24) == (detail.rest_start_time.to_date > detail.shift.shift_date)
-      end,
-      rest_end_time: (18..33).find do |h|
-        detail.rest_end_time.hour == (h % 24) &&
-        (h >= 24) == (detail.rest_end_time.to_date > detail.shift.shift_date)
-      end,
+      rest_start_time: rest_start_hour,
+      rest_end_time: rest_end_hour,
       break_room_id: detail.break_room_id,
       comment: detail.comment
     }
