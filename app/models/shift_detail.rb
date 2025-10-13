@@ -6,15 +6,11 @@ class ShiftDetail < ApplicationRecord
   validates :rest_start_time, :rest_end_time, presence: true
   validates :comment, length: { maximum: 15 }
 
-  validate :rest_time_order
+  def rest_start_time_jst
+    rest_start_time&.in_time_zone("Tokyo")
+  end
 
-  private
-
-  def rest_time_order
-    return if rest_start_time.blank? || rest_end_time.blank?
-
-    if rest_end_time <= rest_start_time
-      errors.add(:rest_end_time, "は開始時間より後にしてください")
-    end
+  def rest_end_time_jst
+    rest_end_time&.in_time_zone("Tokyo")
   end
 end
