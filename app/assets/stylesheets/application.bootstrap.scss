@@ -19,6 +19,47 @@
   text-decoration: none !important;
 }
 
+// カレンダー日付セルデザイン
+.shift-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 3px 0;
+}
+
+// クリック範囲をボックス全体に広げる //
+.shift-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  border-radius: 8px;
+  padding: 3px 8px;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 日勤／夜勤の色分け */
+.day-shift .shift-link {
+  background-color: rgba(255, 193, 7, 0.15);  /* warning薄色 */
+}
+
+.night-shift .shift-link {
+  background-color: rgba(13, 202, 240, 0.15); /* info薄色 */
+}
+
+/* ホバー時のフィードバック */
+.shift-link:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+/* テキスト */
+.shift-label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.8rem;
+}
+
 // サイドバー
 :root {
   --sidebar-width: 250px;

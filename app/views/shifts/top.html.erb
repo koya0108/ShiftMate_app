@@ -1,8 +1,17 @@
-<div class="bg-light rounded-3 p-3 mb-4 text-center shadow-sm">
-  <h1 class="h3 mb-0 text-success fw-bold"><%= @project.name %> シフト</h1>
-</div>
-<div class="d-flex justify-content-end mb-3">
-  <%= link_to "TOPへ戻る", projects_path, class: "btn btn-success" %>
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body bg-gradient bg-success bg-opacity-10 rounded-3 d-flex justify-content-between align-items-center p-4">
+    <div>
+      <h2 class="fw-bold text-success mb-1">
+        <i class="bi bi-calendar2-week me-2"></i><%= @project.name %> シフト管理
+      </h2>
+      <p class="text-muted mb-0">日勤・夜勤のスケジュールを確認・作成できます</p>
+    </div>
+    <div>
+      <%= link_to projects_path, class: "btn btn-outline-success d-flex align-items-center gap-2 fw-semibold" do %>
+        <i class="bi bi-arrow-left-circle"></i> TOPへ戻る
+      <% end %>
+    </div>
+  </div>
 </div>
 <div id="calendar"
      data-project-id="<%= @project.id %>"

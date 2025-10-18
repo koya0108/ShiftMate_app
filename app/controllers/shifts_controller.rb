@@ -1,9 +1,9 @@
 class ShiftsController < ApplicationController
   before_action :set_project
+  before_action :reset_old_session, only: :step1
 
   def top
-    @project = Project.find(params[:project_id])
-    @shifts = @project.shifts.select(:id, :shift_date)
+    @shifts = @project.shifts.order(:shift_date, :shift_category).select(:id, :shift_date, :shift_category)
   end
 
   def fetch
@@ -11,20 +11,12 @@ class ShiftsController < ApplicationController
     start_date = params[:start].to_date
     end_date   = params[:end].to_date
 
-    shifts = project.shifts.where(shift_date: start_date..end_date)
-    render json: shifts.select(:id, :shift_date)
+    shifts = project.shifts.where(shift_date: start_date..end_date).order(:shift_date, :shift_category)
+    render json: shifts.select(:id, :shift_date, :shift_category)
   end
 
   def step1
-    # 古いセッションを自動リセット
-    if session[:shift_data].present?
-      prev_date = session[:shift_data]["date"]
-      # URLパラメータの日付が異なる、または新規アクセスならリセット
-      if params[:date].present? && prev_date != params[:date]
-        session.delete(:shift_data)
-      end
-    end
-
+    @shift_category = params[:shift_category] || "night" 
     @staffs = @project.staffs
     @break_rooms = @project.break_rooms
 
@@ -38,41 +30,75 @@ class ShiftsController < ApplicationController
       @selected_break_room_ids = []
       @date = params[:date]
     end
+
+    # 日勤・夜勤viewを分ける
+    if @shift_category == "day"
+      render "shifts/step1_day"
+    else
+      render "shifts/step1_night"
+    end
   end
 
   def step1_create
+    @shift_category = params[:shift_category] || "night"
+
+    # 入力チェック
+    if params[:staff_ids].blank?
+      flash[:alert] = "スタッフを1名以上選択してください"
+      return redirect_to step1_project_shifts_path(@project, date: params[:date], shift_category: @shift_category)
+    end
+
+    # 夜勤の場合のみ休憩室の必須チェック
+    if @shift_category == "night" && params[:break_room_ids].blank?
+      flash[:alert] = "休憩室を1つ以上選択してください"
+      return redirect_to step1_project_shifts_path(@project, date: params[:date], shift_category: @shift_category)
+    end
+
     session[:shift_data] = {
-      date: params[:date],
-      staff_ids: params[:staff_ids],
-      break_room_ids: params[:break_room_ids]
+      "date" => params[:date],
+      "staff_ids" => params[:staff_ids],
+      "break_room_ids" => params[:break_room_ids],
+      "shift_category" => @shift_category
     }
-    redirect_to step2_project_shifts_path(@project)
+
+    redirect_to step2_project_shifts_path(@project, shift_category: @shift_category)
   end
 
   def edit_step1
     @shift = @project.shifts.find(params[:id])
+    @shift_category = @shift.shift_category || "night"
 
     session[:shift_data] = {
-      date: @shift.shift_date.strftime("%Y-%m-%d"),
-      staff_ids: @shift.shift_details.pluck(:staff_id),
-      break_room_ids: @shift.shift_details.pluck(:break_room_id)
+      "date" => @shift.shift_date.strftime("%Y-%m-%d"),
+      "staff_ids" => @shift.shift_details.pluck(:staff_id),
+      "break_room_ids" => @shift.shift_details.pluck(:break_room_id),
+      "shift_category" => @shift_category
     }
 
-    redirect_to step1_project_shifts_path(@project, shift_id: @shift.id)
+    # 日勤・夜勤どちらかのstep1に戻すかを指定
+    redirect_to step1_project_shifts_path(@project, shift_id: @shift.id, shift_category: @shift_category)
   end
 
   def step2
     data = session[:shift_data]
-    if data.blank? || data["staff_ids"].blank? || data["break_room_ids"].blank?
+    if data.blank? || data["staff_ids"].blank? || (data["shift_category"] == "night" && data["break_room_ids"].blank?)
       redirect_to step1_project_shifts_path(@project), alert: "データがありません"
       return
     end
 
+    @shift_category = data["shift_category"] || "night"
     @staffs = @project.staffs.where(id: data["staff_ids"])
-    @break_rooms = @project.break_rooms.where(id: data["break_room_ids"])
+    @break_rooms = @project.break_rooms.where(id: data["break_room_ids"]) if data["break_room_ids"].present?
     @date = data["date"]
-    @groups = Group.where(project_id: @project.id) # 小グループ用
+    @groups = @project.groups
     @shift = @project.shifts.find_by(id: params[:shift_id])
+
+    # 日勤ならdayviewを描画
+    if @shift_category == "day"
+      render "shifts/step2_day"
+    else
+      render "shifts/step2_night"
+    end
   end
 
   def update_step2
@@ -81,21 +107,37 @@ class ShiftsController < ApplicationController
 
     @shift = @project.shifts.find(params[:id])
     staffs = Staff.where(id: data["staff_ids"])
-    break_rooms = BreakRoom.where(id: data["break_room_ids"])
+    break_rooms = data["break_room_ids"].present? ? BreakRoom.where(id: data["break_room_ids"]) : []
     date = data["date"]
     staff_groups = params[:group_ids] || {}
+    preferences = params[:preferences] || {}
+    shift_category = data["shift_category"] || "night"
+
+    builder =
+      if shift_category == "day"
+        DayShiftBuilder.new(
+          project: @project,
+          date: date,
+          staffs: staffs,
+          break_rooms: break_rooms,
+          staff_groups: staff_groups,
+          user: current_user,
+          preferences: preferences
+        )
+      else
+        ShiftBuilder.new(
+          project: @project,
+          date: date,
+          staffs: staffs,
+          break_rooms: break_rooms,
+          staff_groups: staff_groups,
+          user: current_user
+        )
+      end
 
     @shift.transaction do
       @shift.shift_details.destroy_all
-
-      ShiftBuilder.new(
-        project: @project,
-        date: date,
-        staffs: staffs,
-        break_rooms: break_rooms,
-        staff_groups: staff_groups,
-        user: current_user
-      ).rebuild(@shift)
+      builder.rebuild(@shift)
     end
 
     session.delete(:shift_data)
@@ -106,34 +148,48 @@ class ShiftsController < ApplicationController
     data = session[:shift_data]
     return redirect_to step1_project_shifts_path(@project), alert: "データがありません" if data.blank?
 
+    @shift_category = data["shift_category"] || "night"
+
+    # 共通データ取得
     staffs = Staff.where(id: data["staff_ids"])
-    break_rooms = BreakRoom.where(id: data["break_room_ids"])
+    break_rooms = data["break_room_ids"].present? ? BreakRoom.where(id: data["break_room_ids"]) : []
     date = data["date"]
     staff_groups = params[:group_ids] || {}
 
-    existing_shift = @project.shifts.find_by(shift_date: date)
+    # 日勤用休憩希望を追加
+    preferences = params[:preferences] || {}
+
+    # builderを分岐
+    builder =
+      if @shift_category == "day"
+        ShiftBuilder::DayShiftBuilder.new(
+          project: @project,
+          date: date,
+          staffs: staffs,
+          break_rooms: break_rooms,
+          staff_groups: staff_groups,
+          user: current_user,
+          preferences: preferences
+        )
+      else
+        ShiftBuilder::NightShiftBuilder.new(
+          project: @project,
+          date: date,
+          staffs: staffs,
+          break_rooms: break_rooms,
+          staff_groups: staff_groups,
+          user: current_user
+        )
+      end
+
+    existing_shift = @project.shifts.find_by(shift_date: date, shift_category: @shift_category)
 
     if existing_shift # 既存シフト→上書き更新
-      ShiftBuilder.new(
-        project: @project,
-        date: date,
-        staffs: staffs,
-        break_rooms: break_rooms,
-        staff_groups: staff_groups,
-        user: current_user
-      ).rebuild(existing_shift)
+      builder.rebuild(existing_shift)
       target_shift = existing_shift
       notice_message = "シフトを更新しました"
     else
-      # 新規シフト→新しく作成
-      target_shift = ShiftBuilder.new(
-        project: @project,
-        date: date,
-        staffs: staffs,
-        break_rooms: break_rooms,
-        staff_groups: staff_groups,
-        user: current_user
-      ).build
+      target_shift = builder.build
       notice_message = "シフトを作成しました"
     end
 
@@ -145,6 +201,12 @@ class ShiftsController < ApplicationController
     @shift = @project.shifts.find(params[:id])
     @shift_details = @shift.shift_details.includes(:staff, :break_room)
     @break_rooms = @project.break_rooms
+
+    if @shift.shift_category == "night"
+      render "shifts/show_night"
+    else
+      render "shifts/show_day"
+    end
   end
 
   def confirm
@@ -152,10 +214,24 @@ class ShiftsController < ApplicationController
     @shift_details = @shift.shift_details.includes(:staff, :break_room)
 
     respond_to do |format|
-      format.html # confirm.html.erbをそのまま表示
+      format.html do
+        if @shift.shift_category == "day"
+          render "shifts/confirm_day"
+        else
+          render "shifts/confirm_night"
+        end
+      end
+
       format.pdf do
+        pdf_template =
+          if @shift.shift_category == "day"
+            "shifts/pdf_day"
+          else
+            "shifts/pdf_night"
+          end
+
         render pdf: "shift_#{@shift.id}",
-               template: "shifts/pdf",
+               template: pdf_template,
                formats: [ :html ],
                layout: "pdf",
                page_size: "A4",
@@ -187,5 +263,15 @@ class ShiftsController < ApplicationController
 
   def set_project
     @project = current_user.projects.find(params[:project_id])
+  end
+
+  def reset_old_session
+    return unless session[:shift_data].present?
+
+    prev_date = session[:shift_data]["date"]
+    # URLのDateパラメータが前回と異なる場合、セッションをリセット
+    if params[:date].present? && prev_date != params[:date]
+      session.delete(:shift_data)
+    end
   end
 end

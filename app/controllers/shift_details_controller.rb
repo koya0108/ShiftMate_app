@@ -5,13 +5,17 @@ class ShiftDetailsController < ApplicationController
     attrs = shift_detail_params.to_h
 
     if attrs["rest_start_time"].present?
-      start_time = build_time(attrs["rest_start_time"].to_i)
+      start_time = build_time_from_string(attrs["rest_start_time"])
       attrs["rest_start_time"] = start_time
-      attrs["rest_end_time"] = start_time + 2.hours
+      
+      # 日勤・夜勤で休憩時間を切り替え
+      shift_type = @shift_detail.shift.shift_category
+      duration = shift_type == "day" ? 1.hour : 2.hours
+
+      attrs["rest_end_time"] = start_time + duration
     end
 
     if @shift_detail.update(attrs)
-      result =  to_detail_json(@shift_detail)
       render json: { success: true, detail: to_detail_json(@shift_detail) }
     else
       # DBの正しい状態に戻す
@@ -37,39 +41,47 @@ class ShiftDetailsController < ApplicationController
     permitted
   end
 
-  # "26" → 翌日の 2:00 に変換
-  def build_time(hour_value)
+  # 正確なtimeに変換(日勤・夜勤両対応)
+  def build_time_from_string(time_str)
     base_date = @shift_detail.shift.shift_date
+    shift_type = @shift_detail.shift.shift_category
 
-    if hour_value >= 24
-      date = base_date + 1.day
-      hour = hour_value -24
+    parts = time_str.to_s.split(":").map(&:to_i)
+    hour = parts[0]
+    min = parts[1] || 0
+
+    if shift_type == "night"
+      if hour < 9
+        base_date += 1.day
+      end
     else
-      date = base_date
-      hour = hour_value
+      if hour >= 24
+        base_date += 1.day
+        hour -= 24
+      end
     end
 
-    Time.zone.local(date.year, date.month, date.day, hour)
+    Time.zone.local(base_date.year, base_date.month, base_date.day, hour, min)
   end
 
   # JSONレスポンス
   def to_detail_json(detail)
-    base_date = detail.shift.shift_date.in_time_zone("Tokyo")
+    base_date = detail.shift.shift_date
     s = detail.rest_start_time.in_time_zone("Tokyo")
     e = detail.rest_end_time.in_time_zone("Tokyo")
 
     rest_start_hour =
       if s.to_date > base_date.to_date
-        s.hour + 24
+        s.hour + 24 + (s.min / 60.0)
       else
-        s.hour
+        s.hour + (s.min / 60.0)
       end
 
     rest_end_hour =
       if e.to_date > base_date.to_date
-        e.hour + 24
+        e.hour + 24 + (e.min / 60.0)
       else
-        e.hour
+        e.hour + (e.min / 60.0)
       end
 
     {

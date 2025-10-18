@@ -1,0 +1,78 @@
+<h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
+
+<div class="d-flex justify-content-end mb-3">
+  <%= link_to "カレンダーへ戻る", project_shift_top_path, class: "btn btn-success" %>
+</div>
+
+<table class="table table-bordered table-hover text-center day-shift-table">
+  <thead>
+    <tr>
+      <th class="bg-secondary text-white">スタッフ</th>
+      <th class="bg-secondary text-white comment-cell">コメント</th>
+
+      <% # 横軸：10:00〜16:00を30分刻みで生成 %>
+      <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
+      <% times.each do |h| %>
+        <% hour = h.floor %>
+        <% minute = ((h - hour) * 60).to_i %>
+        <th class="bg-secondary text-white time-col">
+          <%= format("%02d:%02d", hour, minute) %>
+        </th>
+      <% end %>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% grouped = @shift.shift_details.includes(:staff)
+                   .group_by { |d| d.group_id }
+                   .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+
+    <% grouped.each do |group_id, details| %>
+      <!-- グループ行 -->
+      <tr style="background-color: white; font-weight: bold;">
+        <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
+      </tr>
+
+      <% details.each do |detail| %>
+        <tr>
+          <!-- スタッフ名 -->
+          <td class="text-start"><%= detail.staff.name %></td>
+
+          <!-- コメント -->
+          <td><%= detail.comment.presence || "-" %></td>
+
+          <!-- 時間軸セル -->
+          <% times.each do |h| %>
+            <% hour = h.floor %>
+            <% minute = ((h - hour) * 60).to_i %>
+            <% current_time = Time.zone.local(@shift.shift_date.year, @shift.shift_date.month, @shift.shift_date.day, hour, minute) %>
+            <% active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time) %>
+            <td class="time-cell <%= 'bg-info' if active %>" 
+                data-hour="<%= format('%02d:%02d', hour, minute) %>"></td>
+          <% end %>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="mt-4 d-flex justify-content-center gap-3">
+  <%= button_to reopen_project_shift_path(@project, @shift),
+                method: :patch,
+                class: "btn btn-warning d-flex align-items-center px-4" do %>
+    <i class="bi bi-pencil-square me-2"></i> 編集
+  <% end %>
+
+  <%= link_to confirm_project_shift_path(@project, @shift, format: :pdf),
+              class: "btn btn-primary d-flex align-items-center px-4",
+              target: "_blank" do %>
+    <i class="bi bi-file-earmark-pdf me-2"></i> PDF出力
+  <% end %>
+
+  <%= button_to project_shift_path(@project, @shift),
+                method: :delete,
+                data: { "turbo-confirm": "本当に削除しますか？" },
+                class: "btn btn-danger d-flex align-items-center px-4" do %>
+    <i class="bi bi-trash me-2"></i> 削除
+  <% end %>
+</div>

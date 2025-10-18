@@ -1,0 +1,54 @@
+<div class="container mt-4 w-50">
+  <h2 class="mb-4 text-center text-primary">グループ入力</h2>
+  <p class="text-center text-muted mb-4">
+    対象日: <span class="fw-bold"><%= @date %></span>
+  </p>
+
+  <%= form_with(
+        url: @shift&.persisted? ? update_step2_project_shift_path(@project,  @shift) : step2_create_project_shifts_path(@project),
+        method: :post,
+        local: true
+      ) do %>
+
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle shadow-sm">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 10%">
+              <span class="fw-bold d-block">役職</span>
+              <small class="text-muted">　</small>
+            <th style="width: 25%">
+              <span class="fw-bold d-block">スタッフ</span>
+              <small class="text-muted">　</small>
+            </th>
+            <th style="width: 25%">
+              <span class="fw-bold d-block">グループ</span>
+              <small class="text-muted">同じグループ内で休憩を優先</small>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @staffs.each do |staff| %>
+            <tr>
+              <td class="tw-semibold"><%= staff.position %></td>
+              <!-- スタッフ名 -->
+              <td class="fw-semibold"><%= staff.name %></td>
+
+              <!-- 小グループ選択 -->
+              <td>
+                <%= select_tag "group_ids[#{staff.id}]",
+                      options_from_collection_for_select(@groups, :id, :name),
+                      include_blank: "",
+                      class: "form-select form-select-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-3">
+      <%= submit_tag "作成する", class: "btn btn-primary px-5" %>
+    </div>
+  <% end %>
+</div>
