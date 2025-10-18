@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_09_051532) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_18_093705) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_051532) do
     t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "preference"
     t.index ["shift_id"], name: "index_shift_details_on_shift_id"
     t.index ["staff_id"], name: "index_shift_details_on_staff_id"
   end

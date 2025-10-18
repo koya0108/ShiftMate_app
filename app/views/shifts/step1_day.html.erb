@@ -2,7 +2,7 @@
   <div class="card shadow-sm border-0">
     <div class="card-body">
       <h2 class="card-title mb-4 text-center text-primary">
-        スタッフ・休憩室選択
+        スタッフ選択
       </h2>
 
       <p class="text-center text-muted mb-4">
@@ -10,6 +10,7 @@
       </p>
 
       <%= form_with url: step1_create_project_shifts_path(@project), method: :post, local: true do %>
+        <%= hidden_field_tag :shift_category, @shift_category %>
         <%= hidden_field_tag :date, @date || params[:date] %>
         <%= hidden_field_tag :shift_id, params[:shift_id] %>
 
@@ -22,18 +23,11 @@
                 class: "form-select tom-select" %>
           <small class="text-muted">  </small>
         </div>
-
-        <!-- 休憩所選択 -->
-        <div class="mb-4">
-          <%= label_tag :break_room_ids, "休憩室", class: "form-label fw-bold" %>
-          <%= select_tag "break_room_ids[]",
-                options_from_collection_for_select(@break_rooms, :id, :name, @selected_break_room_ids),
-                multiple: true,
-                class: "form-select tom-select" %>
-          <small class="text-muted">複数の休憩室を割り当て可能です</small>
-        </div>
-
-        <div class="text-center">
+        <div class="text-center mt-4 d-flex justify-content-center gap-3">
+          <%= link_to "カレンダーへ戻る",
+              project_shift_top_path(@project),
+              class: "btn btn-success",
+              data: { turbo: false } %>
           <%= submit_tag "次へ", class: "btn btn-primary px-5" %>
         </div>
       <% end %>

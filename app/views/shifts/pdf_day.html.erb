@@ -1,0 +1,49 @@
+<h2><%= @shift.shift_date.strftime("%Y-%m-%d") %> のシフト（日勤）</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>スタッフ</th>
+      <th>コメント</th>
+      <% # 10:00〜16:00を30分刻みで表示 %>
+      <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
+      <% times.each do |h| %>
+        <% hour = h.floor %>
+        <% minute = ((h - hour) * 60).to_i %>
+        <th><%= format("%02d:%02d", hour, minute) %></th>
+      <% end %>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% grouped = @shift.shift_details.includes(:staff)
+                   .group_by { |d| d.group_id }
+                   .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+
+    <% grouped.each do |group_id, details| %>
+      <!-- グループ名行 -->
+      <tr class="group-row">
+        <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
+      </tr>
+
+      <% details.each do |detail| %>
+        <tr>
+          <td><%= detail.staff.name %></td>
+          <td><%= detail.comment.presence || "-" %></td>
+
+          <% times.each do |h| %>
+            <% hour = h.floor %>
+            <% minute = ((h - hour) * 60).to_i %>
+            <% current_time = Time.zone.local(@shift.shift_date.year, @shift.shift_date.month, @shift.shift_date.day, hour, minute) %>
+
+            <% if (detail.rest_start_time...detail.rest_end_time).cover?(current_time) %>
+              <td class="rest-cell"></td>
+            <% else %>
+              <td></td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

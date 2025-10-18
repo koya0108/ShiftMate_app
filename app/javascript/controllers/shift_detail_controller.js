@@ -12,7 +12,6 @@ export default class extends Controller {
     const groupInput = row.querySelector('input[name="group_id"]')
     const groupId = groupInput ? groupInput.value : null
 
-    // 変更前の値を保存（失敗時に戻すため）
     if (!select.dataset.previousValue) {
       select.dataset.previousValue = value
     }
@@ -33,7 +32,6 @@ export default class extends Controller {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          // 成功時：前回値を更新 & セルを再描画
           select.dataset.previousValue = value
           this.refreshRow(data.detail)
         } else {
@@ -48,28 +46,43 @@ export default class extends Controller {
       })
   }
 
-  // === 時間軸セルの再描画 ===
+  // 時間軸セルの再描画
   refreshRow(detail) {
     const row = document.querySelector(`tr[data-shift-detail-id="${detail.id}"]`)
     if (!row) return
 
+    const table = row.closest("table[data-shift-detail-shift-type]")
+    const shiftType = table ? table.dataset.shiftDetailShiftType : "night"
+
     // 既存の色をリセット
     row.querySelectorAll("td.time-cell").forEach(td => td.classList.remove("bg-info"))
 
-    // サーバーから送られた時間（18〜33の整数形式）
-    const start = parseInt(detail.rest_start_time, 10)
-    const end   = parseInt(detail.rest_end_time, 10)
+    // 小数を扱えるように
+    const start = parseFloat(detail.rest_start_time)
+    const end   = parseFloat(detail.rest_end_time)
 
-    // すべての時間セルをチェックして該当範囲を塗る
     row.querySelectorAll("td.time-cell").forEach(td => {
-      const cellHour = parseInt(td.dataset.hour, 10)
+      const cellHour = this.parseTimeToFloat(td.dataset.hour)
 
-      // 翌日(0〜9)は+24して比較
-      const normalizedCellHour = cellHour < 18 ? cellHour + 24 : cellHour
+      // 夜勤と日勤で異なる補正
+      let normalizedCellHour
 
+      if (shiftType === "night") {
+        // 夜勤: 18〜33 のみ +24 補正
+        normalizedCellHour = cellHour < 18 ? cellHour + 24 : cellHour
+      } else {
+        // 日勤: 10〜15 など通常通り
+        normalizedCellHour = cellHour
+      }
+
+      // 時間範囲に含まれていれば塗りつぶし
       if (normalizedCellHour >= start && normalizedCellHour < end) {
         td.classList.add("bg-info")
       }
     })
+  }
+  parseTimeToFloat(timeStr) {
+    const [h, m] = timeStr.split(":").map(Number)
+    return h + (m / 60)
   }
 }

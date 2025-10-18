@@ -2,7 +2,7 @@ class ShiftDetail < ApplicationRecord
   belongs_to :staff
   belongs_to :shift
   belongs_to :group, optional: true
-  belongs_to :break_room
+  belongs_to :break_room, optional: true
   validates :rest_start_time, :rest_end_time, presence: true
   validates :comment, length: { maximum: 15 }
 
