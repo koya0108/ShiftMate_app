@@ -15,14 +15,15 @@ module ShiftBuilder
 
     # 共通シフト作成
     def build_shift(category:)
-      project.shifts.find_or_initialize_by(
+      shift = project.shifts.find_or_initialize_by(
         shift_date: date,
         shift_category: category
-      ).tap do |shift|
-        shift.user = user
-        shift.status = :draft
-        shift.save!
-      end
+      )
+
+      shift.user = user
+      shift.status = :draft
+      shift.save!
+      shift
     end
 
     # start_hour, end_hour, step_hourを与えると自動生成
