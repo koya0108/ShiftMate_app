@@ -17,23 +17,13 @@ module ShiftBuilder
     def build_shift(category:)
       category_value = Shift.shift_categories[category.to_s]
 
-      Rails.logger.info "🔍 project.id: #{project.id}, user.id: #{user&.id.inspect}, date: #{date}, category_value: #{category_value}"
-
       shift = project.shifts.find_or_initialize_by(
         shift_date: date,
         shift_category: category_value
       )
 
-      Rails.logger.info "🧩 Shift exists?: #{!shift.new_record?}, shift.id: #{shift.id.inspect}"
-
       shift.user = user
       shift.status = :draft
-
-      if shift.valid?
-        Rails.logger.info "shift valid: ok"
-      else
-        Rails.logger.warn "Shift invalid: #{shift.errors.full_messages.join(', ')}"
-      end
 
       shift.save!
       shift
