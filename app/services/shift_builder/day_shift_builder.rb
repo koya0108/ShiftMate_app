@@ -32,10 +32,13 @@ module ShiftBuilder
     # 自動割り当てロジック
     def assign_by_preferences(shift)
         slots = generate_slots
-        group_usage = Hash.new { |h, k| h[k] = [] }
+
+        # 各グループごとにスロット使用回数を管理
+        group_usage = Hash.new { |h, k| h[k] = Hash.new(0) }
 
         @staffs.each do |staff|
         pref = @preferences[staff.id.to_s] || "none"
+        group_id = @staff_groups[staff.id.to_s].presence || "ungrouped"
 
         # 希望に応じて枠を決定
         slot =
@@ -43,27 +46,21 @@ module ShiftBuilder
             when "early" then slots[0] # 11-12時
             when "middle" then slots[1] # 12-13時
             when "late" then slots[2] # 13-14時
-            else slots.sample # 指定なし→ランダム
+            else
+              # 希望なし→グループ内で最も少ない枠に振り分け
+              slots.min_by { |s| group_usage[group_id][s] }
             end
-
-        group_id = @staff_groups[staff.id.to_s].presence
-
-        # グループが同じ時間に偏る場合、次の枠にずらす
-        if pref == "none" && group_id.present? && group_usage[group_id].include?(slot)
-            available_slots = slots - group_usage[group_id]
-            slot = available_slots.sample || slot
-        end
 
         shift.shift_details.create!(
             staff: staff,
-            group_id: group_id.presence&.to_i,
+            group_id: (group_id == "ungrouped" ? nil : group_id.to_i),
             rest_start_time: slot[:start],
             rest_end_time: slot[:end],
             comment: staff.comment,
-            preference: @preferences[staff.id.to_s]
+            preference: pref
         )
 
-        group_usage[group_id] << slot if group_id.present?
+        group_usage[group_id][slot] += 1
         end
     end
 
