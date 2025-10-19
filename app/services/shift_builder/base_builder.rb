@@ -15,10 +15,14 @@ module ShiftBuilder
 
     # 共通シフト作成
     def build_shift(category:)
+      category_value = Shift.shift_categories[category.to_s]
+
       shift = project.shifts.find_or_initialize_by(
         shift_date: date,
-        shift_category: category
+        shift_category: category_value
       )
+
+      Rails.logger.info "🟢 ShiftBuilder: #{shift.new_record? ? '新規作成' : '既存更新'} - #{date} (#{category})"
 
       shift.user = user
       shift.status = :draft
