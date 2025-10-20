@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <body style="font-family: sans-serif; line-height: 1.6;">
-    <% if @resource.created_at == @resource.updated_at %>
+    <% if @resource.previous_changes.key?("encrypted_password") && @resource.previous_changes.key?("confirmation_token") %>
       <!-- 新規登録時 -->
       <h2 style="color: #333;">ShiftMateへようこそ</h2>
 

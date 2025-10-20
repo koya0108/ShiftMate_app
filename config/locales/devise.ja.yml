@@ -45,3 +45,8 @@ ja:
       not_found_in_database: "IDまたはパスワードが正しくありません。"
       timeout: "一定時間が経過したため、再度ログインしてください。"
       unauthenticated: "ログインまたは登録が必要です。"
+
+    registrations:
+      signed_up_but_unconfirmed: "確認メールを送信しました。メール内のリンクから認証を完了してください。"
+      signed_up: "登録が完了しました。ShiftMateへようこそ!"
+      updated: "アカウント情報を更新しました。"
