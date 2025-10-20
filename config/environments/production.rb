@@ -58,7 +58,27 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+
+  # sendgrid設定
+  config.action_mailer.default_url_options = { host: "https://shiftmate-app-f4dad2196d7c.herokuapp.com" }
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    user_name: "apikey",
+    password:  ENV["SENDGRID_API_KEY"],
+    domain: "herokuapp.com",
+    address: "smtp.sendgrid.net",
+    port: 587,
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+
+  config.action_mailer.default_options = {
+    from: "ShiftMate <shiftmate.noreply@gmail.com>",
+    reply_to: "shiftmate.noreply@gmail.com"
+  }
+
+  config.action_mailer.raise_delivery_errors = true
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
