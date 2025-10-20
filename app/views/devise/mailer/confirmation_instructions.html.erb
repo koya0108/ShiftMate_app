@@ -1,25 +1,8 @@
 <!DOCTYPE html>
 <html>
   <body style="font-family: sans-serif; line-height: 1.6;">
-    <% if @resource.unconfirmed_email.present? %>
-      <h2 style="color: #333;">ShiftMate アカウント情報変更の確認</h2>
-
-      <p><%= @email %> 様</p>
-
-      <p>
-        このメールは、ShiftMateでアカウント情報が変更された際に送信されています。<br>
-        以下のリンクをクリックして、変更を確定してください。
-        リンクは30分間有効です。
-      </p>
-
-      <p style="margin: 20px 0;">
-        <%= link_to '変更を確定する', confirmation_url(@resource, confirmation_token: @token), style: "display: inline-block; padding: 10px 20px; background-color: #0d6efd; color: #fff; text-decoration: none; border-radius: 4px;" %>
-      </p>
-
-      <p>
-        ※このメールに心当たりがない場合は、このまま破棄してください。
-      </p>
-    <% else %>
+    <% if @resource.created_at == @resource.updated_at %>
+      <!-- 新規登録時 -->
       <h2 style="color: #333;">ShiftMateへようこそ</h2>
 
       <p><%= @email %> 様</p>
@@ -34,6 +17,27 @@
         <%= link_to 'アカウントを有効化する',
               confirmation_url(@resource, confirmation_token: @token),
               style: "display: inline-block; padding: 10px 20px; background-color: #198754; color: #fff; text-decoration: none; border-radius: 4px;" %>
+      </p>
+
+      <p>
+        ※このメールに心当たりがない場合は、このまま破棄してください。
+      </p>
+    <% else %>
+      <!-- アカウント情報変更時 -->
+      <h2 style="color: #333;">ShiftMate アカウント情報変更の確認</h2>
+
+      <p><%= @email %> 様</p>
+
+      <p>
+        このメールは、ShiftMateでアカウント情報が変更された際に送信されています。<br>
+        以下のリンクをクリックして、変更を確定してください。<br>
+        リンクは30分間有効です。
+      </p>
+
+      <p style="margin: 20px 0;">
+        <%= link_to '変更を確定する',
+              confirmation_url(@resource, confirmation_token: @token),
+              style: "display: inline-block; padding: 10px 20px; background-color: #0d6efd; color: #fff; text-decoration: none; border-radius: 4px;" %>
       </p>
 
       <p>
