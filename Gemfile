@@ -77,4 +77,6 @@ gem "bootstrap5-kaminari-views"
 
 gem "ransack", github: "activerecord-hackery/ransack"
 
+gem "meta-tags"
+
 # gem "wkhtmltopdf-binary"
