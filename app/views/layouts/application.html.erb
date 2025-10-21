@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
+    <!-- 静的OGP設定 -->
+    <%= display_meta_tags(
+      site: 'ShiftMate',
+      reverse: true,
+      description: '1日の日勤・夜勤シフトを自動で作成するアプリ ShiftMate',
+      keywords: 'シフト, 夜勤, 自動作成, 看護師, コールセンター, ShiftMate',
+      og: {
+        title: 'ShiftMate',
+        description: '1日の日勤・夜勤シフトを自動作成。',
+        type: 'website',
+        url: 'https://shiftmate-app-f4dad2196d7c.herokuapp.com/',
+        image: 'https://shiftmate-app-f4dad2196d7c.herokuapp.com/ogp-image.png',
+        site_name: 'ShiftMate',
+        locale: 'ja_JP',
+      }) %>
     <%= stylesheet_link_tag "application" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
