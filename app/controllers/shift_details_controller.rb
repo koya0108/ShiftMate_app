@@ -7,7 +7,7 @@ class ShiftDetailsController < ApplicationController
     if attrs["rest_start_time"].present?
       start_time = build_time_from_string(attrs["rest_start_time"])
       attrs["rest_start_time"] = start_time
-      
+
       # 日勤・夜勤で休憩時間を切り替え
       shift_type = @shift_detail.shift.shift_category
       duration = shift_type == "day" ? 1.hour : 2.hours

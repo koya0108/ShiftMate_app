@@ -1,6 +1,6 @@
 module ShiftBuilder
   class BaseBuilder
-    attr_reader  :project, :date, :staffs, :break_rooms, :staff_groups, :user
+    attr_reader :project, :date, :staffs, :break_rooms, :staff_groups, :user
 
     def initialize(project:, date:, staffs:, break_rooms:, staff_groups:, user:)
       @project = project
