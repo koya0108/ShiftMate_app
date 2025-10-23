@@ -74,7 +74,7 @@ module ShiftBuilder
     # 深夜への近さを数値化
     def distance_to_midnight(time)
       midnight = time.change(hour: 0)
-      [(time - midnight).abs, (time - (midnight + 1.day)).abs].min
+      [ (time - midnight).abs, (time - (midnight + 1.day)).abs ].min
     end
 
     def assign_staffs(shift, slots)

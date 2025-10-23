@@ -16,7 +16,7 @@ class ShiftsController < ApplicationController
   end
 
   def step1
-    @shift_category = params[:shift_category] || "night" 
+    @shift_category = params[:shift_category] || "night"
     @staffs = @project.staffs
     @break_rooms = @project.break_rooms
 
