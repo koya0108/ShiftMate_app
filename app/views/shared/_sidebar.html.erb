@@ -1,6 +1,6 @@
 <nav id="sidebar"
-     class="bg-light border-end vh-100 position-fixed d-none shadow-sm"
-     style="width: 250px; top: 56px; left: 0; z-index: 1030;">
+     class="bg-light border-end position-fixed d-none shadow-sm"
+     style="width: 250px; top: 56px; left: 0; z-index: 1030; height: calc(100vh - 56px); overflow-y: auto;">
   <div class="d-flex flex-column h-100">
 
     <!-- サイドバーのヘッダー -->
@@ -47,5 +47,16 @@
       <% end %>
 
     </ul>
+    <div class="mt-auto border-top px-3 py-3 mb-3">
+      <small class="text-muted d-block mb-1">
+        <%= link_to "プライバシーポリシー", privacy_path, class: "text-decoration-none text-secondary" %>
+      </small>
+      <small class="text-muted d-block mb-1">
+        <%= link_to "利用規約", terms_path, class: "text-decoration-none text-secondary" %>
+      </small>
+      <small class="text-muted d-block">
+        <%= link_to "お問い合わせ", contact_path, class: "text-decoration-none text-secondary" %>
+      </small>
+    </div>
   </div>
 </nav>
