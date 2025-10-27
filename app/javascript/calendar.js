@@ -106,12 +106,12 @@ document.addEventListener('turbo:load', () => {
           break
         case "created_day":
           icon.className = "bi bi-file-earmark-text-fill text-warning me-1"
-          label.textContent = "PDF"
+          label.textContent = "シフト"
           wrapper.classList.add("day-shift")
           break
         case "created_night":
           icon.className = "bi bi-file-earmark-text-fill text-info me-1"
-          label.textContent = "PDF"
+          label.textContent = "シフト"
           wrapper.classList.add("night-shift")
           break
       }

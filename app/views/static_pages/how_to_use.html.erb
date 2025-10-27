@@ -1,0 +1,37 @@
+<div class="container py-5">
+  <h2 class="text-center mb-5 fw-bold text-primary">ShiftMateの使い方</h2>
+
+  <% steps = [
+    { title: "① プロジェクトTOP画面", image: "howto_1.png" },
+    { title: "② シフトTOP画面", image: "howto_2.png" },
+    { title: "③ シフト作成方法", image: "howto_3.png" },
+    { title: "④ シフト編集方法", image: "howto_4.png" }
+  ] %>
+
+  <% steps.each do |step| %>
+    <div class="card mb-5 border-0 shadow-sm rounded-4">
+      <div class="card-body text-center">
+        <h4 class="fw-bold text-secondary mb-3"><%= step[:title] %></h4>
+        <img src="<%= asset_path(step[:image]) %>"
+             class="img-fluid rounded shadow-sm howto-img"
+             alt="<%= step[:title] %>">
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .howto-img {
+    max-width: 90%;
+    border: 5px solid #f8f9fa;
+    transition: transform 0.3s ease;
+  }
+
+  .howto-img:hover {
+    transform: scale(1.02);
+  }
+
+  .card {
+    background-color: #fdfdfd;
+  }
+</style>
