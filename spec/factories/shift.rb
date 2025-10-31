@@ -4,7 +4,7 @@ FactoryBot.define do
     shift_category { :day }
     status { :draft }
 
-    association :user 
+    association :user
     association :project
   end
 end
