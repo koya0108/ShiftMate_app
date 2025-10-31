@@ -26,4 +26,10 @@ RSpec.describe User, type: :model do
     duplicate_user = build(:user, email: "test@example.com")
     expect(duplicate_user).not_to be_valid
   end
+
+  it "同じemployee_codeは登録できない" do
+    create(:user, employee_code: "E001")
+    duplicate_user = build(:user, employee_code: "E001")
+    expect(duplicate_user).not_to be_valid
+  end
 end
