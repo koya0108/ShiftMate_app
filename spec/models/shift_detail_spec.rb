@@ -39,7 +39,7 @@ RSpec.describe ShiftDetail, type: :model do
   describe "インスタンスメソッド" do
     it "JST変換された休憩開始時間を返す" do
       detail = build(:shift_detail, rest_start_time: Time.utc(2025, 10, 25, 3, 0, 0))
-      expect(detail.rest_start_time_jst.hour).to eq(12) #JST +9
+      expect(detail.rest_start_time_jst.hour).to eq(12) # JST +9
     end
   end
 end

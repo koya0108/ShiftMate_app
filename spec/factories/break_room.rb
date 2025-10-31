@@ -3,4 +3,4 @@ FactoryBot.define do
     name { "休憩室A" }
     association :project
   end
-end 
+end

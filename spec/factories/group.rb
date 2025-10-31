@@ -3,4 +3,4 @@ FactoryBot.define do
     name { "テストグループ" }
     association :project
   end
-end 
+end

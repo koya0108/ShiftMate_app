@@ -61,7 +61,7 @@ RSpec.describe "Staffs", type: :request do
     end
   end
 
-  describe  "DELETE /projects/:project_id/staffs/:id" do
+  describe "DELETE /projects/:project_id/staffs/:id" do
     it "スタッフを削除できる" do
       expect {
         delete project_staff_path(project, staff)

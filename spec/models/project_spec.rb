@@ -23,6 +23,6 @@ RSpec.describe Project, type: :model do
     create(:staff, project: project)
     create(:group, project: project)
     create(:break_room,  project: project)
-    expect { project.destroy }.to change { [Staff.count, Group.count, BreakRoom.count] }.to([0, 0, 0])
+    expect { project.destroy }.to change { [ Staff.count, Group.count, BreakRoom.count ] }.to([ 0, 0, 0 ])
   end
 end
