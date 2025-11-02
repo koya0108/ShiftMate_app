@@ -115,7 +115,7 @@ class ShiftsController < ApplicationController
 
     builder =
       if shift_category == "day"
-        DayShiftBuilder.new(
+        ShiftBuilder::DayShiftBuilder.new(
           project: @project,
           date: date,
           staffs: staffs,
@@ -125,7 +125,7 @@ class ShiftsController < ApplicationController
           preferences: preferences
         )
       else
-        ShiftBuilder.new(
+        ShiftBuilder::NightShiftBuilder.new(
           project: @project,
           date: date,
           staffs: staffs,
