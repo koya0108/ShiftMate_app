@@ -69,6 +69,21 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Set up Node and Yarn
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "yarn"
+
+      - name: Install JS dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Precompile assets for testing
+        env:
+          RAILS_ENV: test
+        run: |
+          bin/rails assets:precompile
+
       - name: Run tests
         env:
           RAILS_ENV: test
