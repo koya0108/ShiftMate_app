@@ -16,8 +16,8 @@ RSpec.describe "Shifts Step2", type: :request do
       post step1_create_project_shifts_path(project), params: {
         shift_category: "night",
         date: Date.today,
-        staff_ids: [staff1.id],
-        break_room_ids: [break_room.id]
+        staff_ids: [ staff1.id ],
+        break_room_ids: [ break_room.id ]
       }
 
       post step2_create_project_shifts_path(project), params: { group_ids: {} }
