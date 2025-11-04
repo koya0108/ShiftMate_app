@@ -30,14 +30,14 @@ RSpec.describe "Shifts Step Flow", type: :request do
         post step1_create_project_shifts_path(project), params: {
           shift_category: "night",
           date: "2025-11-01",
-          staff_ids: [staff1.id, staff2.id],
-          break_room_ids: [break_room.id]
+          staff_ids: [ staff1.id, staff2.id ],
+          break_room_ids: [ break_room.id ]
         }
 
         expect(session[:shift_data]).to include(
           "date" => "2025-11-01",
-          "staff_ids" => [staff1.id.to_s, staff2.id.to_s],
-          "break_room_ids" => [break_room.id.to_s],
+          "staff_ids" => [ staff1.id.to_s, staff2.id.to_s ],
+          "break_room_ids" => [ break_room.id.to_s ],
           "shift_category" => "night"
         )
 
@@ -48,7 +48,7 @@ RSpec.describe "Shifts Step Flow", type: :request do
         post step1_create_project_shifts_path(project), params: {
           shift_category: "day",
           date: "2025-11-01",
-          staff_ids: [staff1.id]
+          staff_ids: [ staff1.id ]
         }
 
         expect(session[:shift_data]["shift_category"]).to eq("day")
@@ -61,7 +61,7 @@ RSpec.describe "Shifts Step Flow", type: :request do
         post step1_create_project_shifts_path(project), params: {
           shift_category: "night",
           date: "2025-11-01",
-          break_room_ids: [break_room.id]
+          break_room_ids: [ break_room.id ]
         }
 
         expect(flash[:alert]).to eq("スタッフを1名以上選択してください")
@@ -72,7 +72,7 @@ RSpec.describe "Shifts Step Flow", type: :request do
         post step1_create_project_shifts_path(project), params: {
           shift_category: "night",
           date: "2025-11-01",
-          staff_ids: [staff1.id]
+          staff_ids: [ staff1.id ]
         }
 
         expect(flash[:alert]).to eq("休憩室を1つ以上選択してください")
@@ -87,8 +87,8 @@ RSpec.describe "Shifts Step Flow", type: :request do
         post step1_create_project_shifts_path(project), params: {
           shift_category: "night",
           date: "2025-11-01",
-          staff_ids: [staff1.id],
-          break_room_ids: [break_room.id]
+          staff_ids: [ staff1.id ],
+          break_room_ids: [ break_room.id ]
         }
       end
 
