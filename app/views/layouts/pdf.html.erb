@@ -4,8 +4,6 @@
     <meta charset="utf-8">
     <title>Shift PDF</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
-
       body {
         font-family: 'Noto Sans JP', sans-serif;
         font-size: 12px;
@@ -48,6 +46,35 @@
       /* 休憩中セル */
       .rest-cell {
         background-color: #bbb;    /* 中間グレーに設定 */
+      }
+
+      /* 2ページ目以降にtheadが繰り返されるのを防止 */
+      thead {
+        display: table-row-group;
+      }
+
+      @page {
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
+
+      @font-face {
+        font-family: 'NotoSansJP';
+        src: url('file:///app/app/assets/fonts/NotoSansJP-Regular.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: 'NotoSansJP';
+        src: url('file:///app/app/assets/fonts/NotoSansJP-Bold.ttf') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+      }
+
+      /* すべての文字をこのフォントに統一 */
+      body {
+        font-family: 'NotoSansJP', sans-serif;
       }
     </style>
   </head>
