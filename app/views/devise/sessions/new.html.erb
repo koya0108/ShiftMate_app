@@ -20,6 +20,19 @@
         </div>
       <% end %>
 
+      <div class="text-center mt-4">
+        <p class="text-muted mb-2">または</p>
+        <%= link_to user_google_oauth2_omniauth_authorize_path, class: "btn btn-light border w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" do %>
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+               alt="Google Logo"
+               width="20"
+               height="20">
+          <i class="fw-semibold text-muted"></i>Googleでログイン
+        <% end %>
+      </div>
+
+      <hr>
+
       <div class="text-end">
         <%= link_to "新規登録はこちら", new_user_registration_path, class: "small" %>
       </div>

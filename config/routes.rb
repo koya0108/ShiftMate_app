@@ -5,7 +5,8 @@ Rails.application.routes.draw do
   get "how_to_use", to: "static_pages#how_to_use"
   devise_for :users, controllers: {
     confirmations: "users/confirmations",
-    registrations: "users/registrations"
+    registrations: "users/registrations",
+    omniauth_callbacks: "users/omniauth_callbacks"
   }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
