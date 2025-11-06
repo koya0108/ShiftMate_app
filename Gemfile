@@ -83,7 +83,7 @@ gem "omniauth-google-oauth2"
 
 gem "omniauth"
 
-gem "tailwindcss-rails"
+# gem "tailwindcss-rails"
 
 gem "dotenv-rails", groups: [ :development, :test ]
 
