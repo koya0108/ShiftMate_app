@@ -1,5 +1,8 @@
 ja:
   devise:
+    omniauth_callbacks:
+      success: "%{kind} アカウントでログインしました。"
+      failure: "%{kind} アカウントでの認証に失敗しました。"
     confirmations:
       user:
         confirmed: "メールアドレスが確認されました。"

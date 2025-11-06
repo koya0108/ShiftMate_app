@@ -79,4 +79,12 @@ gem "ransack", github: "activerecord-hackery/ransack"
 
 gem "meta-tags"
 
+gem "omniauth-google-oauth2"
+
+gem "omniauth"
+
+# gem "tailwindcss-rails"
+
+gem "dotenv-rails", groups: [ :development, :test ]
+
 # gem "wkhtmltopdf-binary"
