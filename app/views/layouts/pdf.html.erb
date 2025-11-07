@@ -20,7 +20,21 @@
         padding: 4px 10px;             /* セルの高さを確保 */
         text-align: center;
         line-height: 1.4;
-        height: 40px;
+        height: auto;
+        min-height: 40px;
+        vertical-align: middle;
+      }
+
+      td.staff-name {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 120px;
+      }
+
+      td.break-room {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 120px;
       }
 
       th {
