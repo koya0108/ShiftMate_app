@@ -1,109 +1,111 @@
 <h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
 
-<table class="table table-bordered table-hover text-center" data-controller="shift-detail" data-shift-detail-shift-type="day">
-  <thead>
-    <tr>
-      <th class="bg-secondary text-white">スタッフ</th>
-      <th class="bg-secondary text-white comment-cell">コメント</th>
-      <th class="bg-secondary text-white">希望</th>
-      <th class="bg-secondary text-white">開始時間</th>
+<div class="table-wrapper">
+  <table class="table table-bordered table-hover text-center shift-table day-shift-table" data-controller="shift-detail" data-shift-detail-shift-type="day">
+    <thead>
+      <tr>
+        <th class="bg-secondary text-white">スタッフ</th>
+        <th class="bg-secondary text-white comment-cell">コメント</th>
+        <th class="bg-secondary text-white">希望</th>
+        <th class="bg-secondary text-white">開始時間</th>
 
-      <% # 横軸：10:00〜16:00を30分刻みで生成 %>
-      <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
-      <% times.each do |h| %>
-        <% hour = h.floor %>
-        <% minute = ((h - hour) * 60).to_i %>
-        <th class="bg-secondary text-white time-col <%= 'half-hour' if minute == 30 %>"><%= format("%02d:%02d", hour, minute) %></th>
-      <% end %>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% grouped = @shift.shift_details.includes(:staff)
-                   .group_by { |d| d.group_id }
-                   .sort_by { |g, _| g.nil? ? 1 : 0 } %>
-
-    <% grouped.each do |group_id, details| %>
-      <!-- グループ行 -->
-      <tr style="background-color: white; font-weight: bold;">
-        <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
+        <% # 横軸：10:00〜16:00を30分刻みで生成 %>
+        <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
+        <% times.each do |h| %>
+          <% hour = h.floor %>
+          <% minute = ((h - hour) * 60).to_i %>
+          <th class="bg-secondary text-white time-col <%= 'half-hour' if minute == 30 %>"><%= format("%02d:%02d", hour, minute) %></th>
+        <% end %>
       </tr>
+    </thead>
 
-      <% details.each do |detail| %>
-        <tr data-shift-detail-id="<%= detail.id %>">
-          <!-- スタッフ名 -->
-          <td class="text-start"><%= detail.staff.name %></td>
+    <tbody>
+      <% grouped = @shift.shift_details.includes(:staff)
+                    .group_by { |d| d.group_id }
+                    .sort_by { |g, _| g.nil? ? 1 : 0 } %>
 
-          <!-- コメント -->
-          <td>
-            <%= text_field_tag "comment",
-                  detail.comment,
-                  maxlength: 15,
-                  class: "form-control form-control-sm ",
-                  data: { action: "blur->shift-detail#update",
-                          shift_detail_id: detail.id,
-                          field: "comment" } %>
-          </td>
-          <!-- 休憩希望 -->
-          <td>
-            <% case detail.preference %>
-            <% when "early" %>
-                早め
-            <% when "middle" %>
-                中間
-            <% when "late" %>
-                遅め
-            <% else %>
-                -
-            <% end %>
-          </td>
-          <!-- 開始時間セレクト -->
-          <td>
-            <% s = detail.rest_start_time_jst %>
-            <% start_str = s.strftime("%H:%M") %>
-
-            <% # 10:00〜15:00の30分刻み選択肢を生成 %>
-            <% options = [] %>
-            <% (10..14).each do |hour| %>
-              <% ["00", "30"].each do |minute| %>
-                <% time_str = "#{format("%02d", hour)}:#{minute}" %>
-                <% options << [time_str, time_str] %>
-              <% end %>
-            <% end %>
-            <% options << ["15:00", "15:00"] %> <!-- 終端を含める -->
-
-            <div class="d-flex align-items-center justify-content-center gap-2">
-              <%= select_tag "rest_start_time",
-                    options_for_select(options, start_str),
-                    class: "form-select form-select-sm text-primary fw-semibold border-primary-subtle px-2 py-1",
-                    data: {
-                        action: "change->shift-detail#update",
-                        shift_detail_id: detail.id,
-                        field: "rest_start_time"
-                    } %>
-            </div>
-
-            <!-- グループID hiddenで保持 -->
-            <%= hidden_field_tag "group_id",
-                  detail.group_id,
-                  data: { shift_detail_id: detail.id, field: "group_id" } %>
-          </td>
-
-          <!-- 時間軸セル（30分単位） -->
-          <% times.each do |h| %>
-            <% hour = h.floor %>
-            <% minute = ((h - hour) * 60).to_i %>
-            <% current_time = Time.zone.local(@shift.shift_date.year, @shift.shift_date.month, @shift.shift_date.day, hour, minute) %>
-            <% active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time) %>
-            <td class="time-cell <%= 'bg-info' if active %> <%= 'half-hour' if minute == 30 %>" data-hour="<%= format('%02d:%02d', hour, minute) %>"></td>
-          <% end %>
+      <% grouped.each do |group_id, details| %>
+        <!-- グループ行 -->
+        <tr style="background-color: white; font-weight: bold;">
+          <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
-      <% end %>
-    <% end %>
-  </tbody>
-</table>
 
-<div class="mt-4 d-flex justify-content-center gap-3">
+        <% details.each do |detail| %>
+          <tr data-shift-detail-id="<%= detail.id %>">
+            <!-- スタッフ名 -->
+            <td class="text-start"><%= detail.staff.name %></td>
+
+            <!-- コメント -->
+            <td>
+              <%= text_field_tag "comment",
+                    detail.comment,
+                    maxlength: 15,
+                    class: "form-control form-control-sm ",
+                    data: { action: "blur->shift-detail#update",
+                            shift_detail_id: detail.id,
+                            field: "comment" } %>
+            </td>
+            <!-- 休憩希望 -->
+            <td>
+              <% case detail.preference %>
+              <% when "early" %>
+                  早め
+              <% when "middle" %>
+                  中間
+              <% when "late" %>
+                  遅め
+              <% else %>
+                  -
+              <% end %>
+            </td>
+            <!-- 開始時間セレクト -->
+            <td>
+              <% s = detail.rest_start_time_jst %>
+              <% start_str = s.strftime("%H:%M") %>
+
+              <% # 10:00〜15:00の30分刻み選択肢を生成 %>
+              <% options = [] %>
+              <% (10..14).each do |hour| %>
+                <% ["00", "30"].each do |minute| %>
+                  <% time_str = "#{format("%02d", hour)}:#{minute}" %>
+                  <% options << [time_str, time_str] %>
+                <% end %>
+              <% end %>
+              <% options << ["15:00", "15:00"] %> <!-- 終端を含める -->
+
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <%= select_tag "rest_start_time",
+                      options_for_select(options, start_str),
+                      class: "form-select form-select-sm text-primary fw-semibold border-primary-subtle px-2 py-1",
+                      data: {
+                          action: "change->shift-detail#update",
+                          shift_detail_id: detail.id,
+                          field: "rest_start_time"
+                      } %>
+              </div>
+
+              <!-- グループID hiddenで保持 -->
+              <%= hidden_field_tag "group_id",
+                    detail.group_id,
+                    data: { shift_detail_id: detail.id, field: "group_id" } %>
+            </td>
+
+            <!-- 時間軸セル（30分単位） -->
+            <% times.each do |h| %>
+              <% hour = h.floor %>
+              <% minute = ((h - hour) * 60).to_i %>
+              <% current_time = Time.zone.local(@shift.shift_date.year, @shift.shift_date.month, @shift.shift_date.day, hour, minute) %>
+              <% active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time) %>
+              <td class="time-cell <%= 'bg-info' if active %> <%= 'half-hour' if minute == 30 %>" data-hour="<%= format('%02d:%02d', hour, minute) %>"></td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="shift-action-buttons">
   <% if @shift.draft? %>
     <!-- スタッフ追加ボタン -->
     <%= link_to edit_step1_project_shift_path(@project, @shift),

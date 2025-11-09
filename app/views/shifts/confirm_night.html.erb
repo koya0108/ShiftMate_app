@@ -1,56 +1,59 @@
 <h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
-<div class="d-flex justify-content-end mb-3">
+<div class="shift-action-buttons" style="justify-content: flex-start;">
   <%= link_to "カレンダーへ戻る", project_shift_top_path, class: "btn btn-success" %>
 </div>
-<table class="table table-bordered table-hover text-center">
-  <thead>
-    <tr>
-      <th class="bg-secondary text-white">スタッフ</th>
-      <th class="bg-secondary text-white">休憩場所</th>
-      <th class="bg-secondary text-white comment-cell">コメント</th>
-      <% (18..33).each do |h| %>
-        <th class="bg-secondary text-white time-col"><%= "#{h % 24}:00" %></th>
-      <% end %>
-    </tr>
-  </thead>
 
-  <tbody>
-    <% grouped = @shift.shift_details.includes(:staff, :break_room)
-                   .group_by { |d| d.group_id }
-                   .sort_by { |g, _| g.nil? ? 1 : 0 } %>
-
-    <% grouped.each do |group_id, details| %>
-      <!-- グループ行 -->
-      <tr style="background-color: white; font-weight: bold;">
-        <td colspan="19"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
+<div class="table-wrapper">
+  <table class="table table-bordered table-hover text-center shift-table night-shift-table">
+    <thead>
+      <tr>
+        <th class="bg-secondary text-white">スタッフ</th>
+        <th class="bg-secondary text-white">休憩場所</th>
+        <th class="bg-secondary text-white comment-cell">コメント</th>
+        <% (18..33).each do |h| %>
+          <th class="bg-secondary text-white time-col"><%= "#{h % 24}:00" %></th>
+        <% end %>
       </tr>
+    </thead>
 
-      <% details.each do |detail| %>
-        <tr>
-          <!-- スタッフ名 -->
-          <td class="text-start"><%= detail.staff.name %></td>
+    <tbody>
+      <% grouped = @shift.shift_details.includes(:staff, :break_room)
+                    .group_by { |d| d.group_id }
+                    .sort_by { |g, _| g.nil? ? 1 : 0 } %>
 
-          <!-- 休憩室 -->
-          <td><%= detail.break_room&.name || "-" %></td>
-
-          <!-- コメント -->
-          <td><%= detail.comment.presence || "-" %></td>
-
-          <!-- 時間軸セル -->
-          <% (18..33).each do |h| %>
-            <% date = (h >= 24) ? @shift.shift_date + 1.day : @shift.shift_date
-               current_time = Time.zone.local(date.year, date.month, date.day, h % 24)
-               active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time)
-            %>
-            <td class="time-cell <%= 'bg-info' if active %>" data-hour="<%= h %>"></td>
-          <% end %>
+      <% grouped.each do |group_id, details| %>
+        <!-- グループ行 -->
+        <tr style="background-color: white; font-weight: bold;">
+          <td colspan="19"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
-      <% end %>
-    <% end %>
-  </tbody>
-</table>
 
-<div class="mt-4 d-flex justify-content-center gap-3">
+        <% details.each do |detail| %>
+          <tr>
+            <!-- スタッフ名 -->
+            <td class="text-start"><%= detail.staff.name %></td>
+
+            <!-- 休憩室 -->
+            <td><%= detail.break_room&.name || "-" %></td>
+
+            <!-- コメント -->
+            <td><%= detail.comment.presence || "-" %></td>
+
+            <!-- 時間軸セル -->
+            <% (18..33).each do |h| %>
+              <% date = (h >= 24) ? @shift.shift_date + 1.day : @shift.shift_date
+                current_time = Time.zone.local(date.year, date.month, date.day, h % 24)
+                active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time)
+              %>
+              <td class="time-cell <%= 'bg-info' if active %>" data-hour="<%= h %>"></td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="shift-action-buttons">
   <%= button_to reopen_project_shift_path(@project, @shift),
                 method: :patch,
                 class: "btn btn-warning d-flex align-items-center px-4" do %>

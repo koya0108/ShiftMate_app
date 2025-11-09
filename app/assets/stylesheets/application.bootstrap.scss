@@ -3,30 +3,83 @@
 @import "tom-select/dist/css/tom-select.bootstrap5";
 @import "shift";
 
+/* 全体レイアウト基本設定 */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  overflow: hidden; /* mainだけスクロール対象にする */
+}
+
+/* ヘッダー固定 */
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ステータスバナー（中央寄せ + 固定） */
+.status-banner {
+  position: fixed;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%); /* 中央寄せ */
+  z-index: 1040;
+  width: auto;
+  max-width: 90%;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+/* mainをスクロール領域にする */
+main {
+  position: relative;
+  margin-top: 56px;              /* ヘッダー高さぶん下げ */
+  padding: 1rem;
+  padding-top: 3.5rem;           /* ステータスバナー分の余白確保 */
+  padding-bottom: 3rem;
+  height: calc(100vh - 110px);    /* 画面高 - ヘッダー高 */
+  overflow-y: auto;              /*  mainの中だけ縦スクロール */
+  overflow-x: hidden;            /* main自体は横スクロール禁止 */
+  background-color: #f9f9f9;
+  -webkit-overflow-scrolling: touch; /* iOSでスムーズスクロール */
+}
+
+/* カレンダー関連*/
 #calendar {
-    max-width: 900px;
-    margin: 0 auto;
-    .fc-event {
+  max-width: 900px;
+  margin: 0 auto;
+
+  .fc-event {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    }
+  }
 }
 
-// 日付と曜日の下線を消す
+/* 日付と曜日の下線を消す */
 .fc .fc-daygrid-day-number,
 .fc .fc-col-header-cell-cushion {
   text-decoration: none !important;
 }
 
-// カレンダー日付セルデザイン
+.fc-list-event-time {
+  display: none !important;
+}
+
+/* カレンダー日付セルデザイン */
 .shift-icon-wrapper {
   display: flex;
   justify-content: center;
   margin: 3px 0;
 }
 
-// クリック範囲をボックス全体に広げる //
+/* クリック範囲を広げる */
 .shift-link {
   display: flex;
   align-items: center;
@@ -40,55 +93,189 @@
 
 /* 日勤／夜勤の色分け */
 .day-shift .shift-link {
-  background-color: rgba(255, 193, 7, 0.15);  /* warning薄色 */
+  background-color: rgba(255, 193, 7, 0.15);
 }
-
 .night-shift .shift-link {
-  background-color: rgba(13, 202, 240, 0.15); /* info薄色 */
+  background-color: rgba(13, 202, 240, 0.15);
 }
 
-/* ホバー時のフィードバック */
+/* ホバー時 */
 .shift-link:hover {
   transform: scale(1.05);
   box-shadow: 0 0 6px rgba(0,0,0,0.1);
 }
 
-/* テキスト */
 .shift-label {
   font-weight: 500;
   color: #333;
   font-size: 0.8rem;
 }
 
-// サイドバー
+/* サイドバー */
 :root {
   --sidebar-width: 250px;
 }
 
-body.with-sidebar main {
-  margin-left: var(--sidebar-width);
+#sidebar {
+  position: fixed;
+  width: var(--sidebar-width);
+  top: 56px;
+  left: 0;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  transform: translateX(-100%);
+  background-color: #f8f9fa;
+  transition: transform 0.3s ease-in-out;
+  z-index: 1020;
 }
 
-// トースト通知
+body.with-sidebar #sidebar {
+  transform: translateX(0);
+}
+
+@media (max-width: 992px) {
+  #sidebar {
+    width: 100%;
+  }
+}
+
+/*トースト通知*/
 .toast-container {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
   z-index: 2000;
+  width: auto;
+  max-width: 400px;
+  pointer-events: none;
 }
 
 .flash-toast {
   opacity: 0.95;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  width: 100%;
   border-radius: 8px;
-  font-size: 14px;
-  min-width: 280px;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-/* 成功通知（緑） */
+/* 成功／エラー */
 .bg-success {
   background: linear-gradient(135deg, #198754, #28a745);
+  color: #fff;
 }
-
-/* エラー通知（赤） */
 .bg-danger {
   background: linear-gradient(135deg, #dc3545, #e74c3c);
+  color: #fff;
+}
+
+/* スマホ時：左端寄せ */
+@media (max-width: 576px) {
+  .toast-container {
+    top: 0.75rem;
+    left: 0.5rem;
+    right: auto !important;
+    width: auto;
+    max-width: 85vw;
+  }
+
+  .flash-toast {
+    width: 260px;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
+/*テーブル*/
+.table-wrapper {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 4px;
+}
+
+/* 修正：PCでは画面幅いっぱい、スマホでは横スクロール対応 */
+.shift-table {
+  width: 100%; /* PCでは画面幅いっぱい */
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
+@media (max-width: 576px) {
+  .table-wrapper {
+    overflow-x: scroll !important; /* モバイルで確実にスクロール表示 */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .shift-table {
+    display: table; /* Safari対策 */
+    width: max-content !important; /* 中身サイズに合わせる */
+    min-width: 700px;
+  }
+}
+
+.shift-table th,
+.shift-table td {
+  white-space: nowrap !important;
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* コメント列だけ改行可 */
+.shift-table td.comment-cell {
+  white-space: normal !important;
+}
+
+/* 幅調整 */
+.shift-table td:first-child,
+.shift-table th:first-child {
+  min-width: 120px;
+}
+.shift-table td.comment-cell {
+  min-width: 150px;
+}
+.shift-table th.time-col {
+  min-width: 60px;
+}
+
+/* モバイル縮小 */
+@media (max-width: 576px) {
+  .shift-table th,
+  .shift-table td {
+    font-size: 0.75rem;
+    padding: 2px 4px;
+  }
+
+  .table-wrapper {
+    border-radius: 4px;
+  }
+}
+
+/* ボタン配置修正：PC＝中央寄せ／モバイル＝左寄せ */
+.shift-action-buttons {
+  display: flex;
+  justify-content: center; /* PCでは中央寄せ */
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start; /* モバイルでは左寄せ */
+    gap: 0.5rem;
+  }
+}
+
+.shift-action-buttons .btn {
+  @media (max-width: 576px) {
+    width: auto;
+    min-width: 180px;
+  }
 }
