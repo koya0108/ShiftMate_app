@@ -1,5 +1,6 @@
 import { Calendar } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import listPlugin from '@fullcalendar/list'
 import jaLocale from '@fullcalendar/core/locales/ja'
 
 document.addEventListener('turbo:load', () => {
@@ -8,9 +9,12 @@ document.addEventListener('turbo:load', () => {
 
   const projectId = calendarEl.dataset.projectId
 
+  const isMobile = window.innerWidth <= 768
+  const initialView = isMobile ? 'listMonth' : 'dayGridMonth'
+
   const calendar = new Calendar(calendarEl, {
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
+    plugins: [dayGridPlugin, listPlugin],
+    initialView: initialView,
     locale: jaLocale,
     headerToolbar: {
       left: 'prev,next today',
@@ -29,7 +33,7 @@ document.addEventListener('turbo:load', () => {
           const startDate = new Date(info.start)
           const endDate = new Date(info.end)
 
-          for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
+          for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
             const dateStr = d.toISOString().split('T')[0]
 
             // 日勤・夜勤

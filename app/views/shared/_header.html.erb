@@ -1,14 +1,23 @@
-<header class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <!-- ハンバーガーメニュー（小さい画面用） -->
-    <button class="btn btn-outline-light" id="menu-toggle">☰</button>
-    <!-- 左側タイトル -->
-    <a class="navbar-brand fw-bold" href="#">ShiftMate</a>
+<header class="navbar navbar-dark bg-primary">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
 
+    <!-- ハンバーガーメニュー -->
+    <button
+      class="btn btn-outline-light"
+      id="menu-toggle"
+      type="button"
+      aria-label="サイドメニュー切り替え">
+      ☰
+    </button>
+
+    <!-- アプリタイトル -->
+    <%= link_to "ShiftMate", projects_path, class: "navbar-brand fw-bold m-0" %>
+
+    <!-- ログアウトボタン -->
     <%= button_to "ログアウト",
-              destroy_user_session_path,
-              method: :delete,
-              data: { turbo: false },
-              class: "btn btn-outline-light" %>
+          destroy_user_session_path,
+          method: :delete,
+          data: { turbo: false },
+          class: "btn btn-outline-light" %>
   </div>
 </header>

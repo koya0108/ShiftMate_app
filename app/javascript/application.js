@@ -1,4 +1,3 @@
-// Entry point for the build script in your package.json
 import "@hotwired/turbo-rails"
 import "./controllers"
 import * as bootstrap from "bootstrap"
@@ -10,9 +9,9 @@ import TomSelect from "tom-select"
 document.addEventListener("turbo:load", () => {
   document.querySelectorAll('.tom-select').forEach((el) => {
     new TomSelect(el, {
-      plugins: ['remove_button'],   // タグに×ボタンを付ける
+      plugins: ['remove_button'],
       placeholder: '🔍 検索・複数選択が可能です',
-      maxItems: null                // 制限なし（null）
+      maxItems: null
     })
   })
 })
@@ -22,8 +21,11 @@ document.addEventListener("turbo:load", () => {
   const sidebar = document.getElementById("sidebar");
   if (!btn || !sidebar) return;
 
+  // ← 二重登録防止
+  if (btn.dataset.listenerAdded) return;
+  btn.dataset.listenerAdded = true;
+
   btn.addEventListener("click", () => {
-    sidebar.classList.toggle("d-none");
-    document.body.classList.toggle("with-sidebar", !sidebar.classList.contains("d-none"));
+    document.body.classList.toggle("with-sidebar");
   });
 });

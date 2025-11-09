@@ -28,34 +28,48 @@
 
   <!-- bodyにアクション名クラスを付与 -->
   <body class="d-flex flex-column vh-100 <%= "#{controller.action_name}-page" %>">
+    <!-- ヘッダー（固定） -->
     <%= render 'shared/header' %>
 
+    <!--トースト通知（固定） -->
+    <div class="toast-container position-fixed top-0 end-0 mt-5 me-3" style="z-index: 5000;">
+      <% flash.each do |key, message| %>
+        <div class="toast align-items-center text-white 
+                    bg-<%= key == "notice" ? "success" : "danger" %> border-0 show flash-toast"
+            role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fw-semibold">
+              <%= message %>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="閉じる"></button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- ステータスバナー（mainの外・固定） -->
+    <% if controller_name == "shifts" %>
+      <% if action_name == "confirm" %>
+        <div class="status-banner alert alert-success text-center fw-bold w-75 mx-auto" role="alert">
+          このシフトは <strong>確定済み</strong> です
+        </div>
+      <% elsif action_name == "show" && @shift&.draft? %>
+        <div class="status-banner alert alert-warning text-center fw-bold w-75 mx-auto" role="alert">
+          このシフトは <strong>下書き中</strong> です
+        </div>
+      <% end %>
+    <% end %>
+
+    <!-- コンテンツ領域 -->
     <div class="d-flex flex-grow-1">
-      <!-- ログイン画面は除外 -->
       <% unless controller_name == "sessions" && action_name == "new" %>
         <!-- サイドバー -->
         <%= render 'shared/sidebar' %>
       <% end %>
 
-      <!-- メインコンテンツ -->
+      <!-- mainだけスクロール可能 -->
       <main class="flex-grow-1 p-3">
-        <!-- トースト通知（右上表示） -->
-        <div class="toast-container position-fixed top-0 end-0 mt-5 me-3" style="z-index: 2000;">
-          <% flash.each do |key, message| %>
-            <div class="toast align-items-center text-white 
-                        bg-<%= key == "notice" ? "success" : "danger" %> border-0 show flash-toast"
-                role="alert" aria-live="assertive" aria-atomic="true">
-              <div class="d-flex">
-                <div class="toast-body fw-semibold">
-                  <%= message %>
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                        data-bs-dismiss="toast" aria-label="閉じる"></button>
-              </div>
-            </div>
-          <% end %>
-        </div>
-
         <script>
           document.addEventListener("turbo:load", () => {
             const toastElList = document.querySelectorAll('.flash-toast');
@@ -63,19 +77,6 @@
             toastList.forEach(toast => toast.show());
           });
         </script>
-
-        <!-- show / confirm ページのステータスバナー -->
-        <% if controller_name == "shifts" %>
-          <% if action_name == "confirm" %>
-            <div class="alert alert-success text-center fw-bold w-75 mx-auto" role="alert">
-               このシフトは <strong>確定済み</strong> です
-            </div>
-          <% elsif action_name == "show" && @shift&.draft? %>
-            <div class="alert alert-warning text-center fw-bold w-75 mx-auto" role="alert">
-               このシフトは <strong>下書き中</strong> です
-            </div>
-          <% end %>
-        <% end %>
 
         <%= yield %>
       </main>
