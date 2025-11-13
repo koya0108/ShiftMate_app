@@ -201,7 +201,8 @@ body.with-sidebar #sidebar {
 /* 修正：PCでは画面幅いっぱい、スマホでは横スクロール対応 */
 .shift-table {
   width: 100%; /* PCでは画面幅いっぱい */
-  table-layout: auto;
+  min-width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
 }
 
@@ -218,28 +219,33 @@ body.with-sidebar #sidebar {
   }
 }
 
-.shift-table th,
-.shift-table td {
+.night-shift-table th,
+.night-shift-table td {
   white-space: nowrap !important;
   vertical-align: middle;
   text-align: center;
 }
 
-/* コメント列だけ改行可 */
-.shift-table td.comment-cell {
+.day-shift-table th,
+.day-shift-table td {
   white-space: normal !important;
+  vertical-align: middle;
+  text-align: center;
 }
 
-/* 幅調整 */
-.shift-table td:first-child,
-.shift-table th:first-child {
-  min-width: 120px;
+.day-shift-table {
+  table-layout: auto !important;
 }
-.shift-table td.comment-cell {
-  min-width: 150px;
+
+.day-shift-table td:first-child,
+.day-shift-table th:first-child {
+  width: 25% !important;
 }
-.shift-table th.time-col {
-  min-width: 60px;
+
+/* コメント欄のセルは改行しない */
+.day-shift-table td.comment-cell,
+.night-shift-table td.comment-cell {
+  white-space: nowrap !important;
 }
 
 /* モバイル縮小 */
@@ -252,6 +258,11 @@ body.with-sidebar #sidebar {
 
   .table-wrapper {
     border-radius: 4px;
+  }
+
+  .day-shift-table td.comment-cell input {
+    min-width: 120px;
+    overflow: hidden;
   }
 }
 
@@ -278,4 +289,12 @@ body.with-sidebar #sidebar {
     width: auto;
     min-width: 180px;
   }
+}
+
+/* テーブル内のフォームのはみ出し防止 */
+.shift-table td input,
+.shift-table td select {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
 }
