@@ -1,5 +1,5 @@
 # ShiftMate
-<img src="./assets/topimage.png" width="600" alt="トップ画像">
+<img src="assets/topimage.png" width="600" alt="トップ画像">
 
 ## 目次
 - アプリ概要
