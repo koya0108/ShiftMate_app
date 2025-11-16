@@ -1,8 +1,7 @@
 # ShiftMate
 <img src="images/topimage.png" width="600" alt="トップ画像">
 <br><br>
-<br><br>
-<br><br>
+
 
 ## 目次
 - [アプリ概要](#アプリ概要)
@@ -15,8 +14,7 @@
   - [ER図](#ER図)
   - [画面遷移図](#画面遷移図)
 <br><br>
-<br><br>
-<br><br>
+
 
 ## アプリ概要
 **日勤・夜勤の一日のシフト作成アプリケーション**  
@@ -24,28 +22,24 @@
 スタッフや休憩室の条件を設定するだけで、最適なシフトを短時間で作成できます。  
 管理者のシフト調整時間を大幅に削減し、管理業務の効率化を実現します。  
 <br><br>
-<br><br>
-<br><br>
+
 
 ## サービスURL
 https://shiftmate-app-f4dad2196d7c.herokuapp.com/
 <br><br>
-<br><br>
-<br><br>
+
 
 ## サービス開発の背景
 私は現在24時間体制の職場で勤めており、日勤や夜勤勤務では複数のスタッフ（約10～20名）と交代で仮眠休憩をとっています。そこでの一日のシフト作成は、管理者が休憩や人員配置のシフト調整を紙に手書きで行っており、作成完了までにかなりの手間や時間を要していました。  
 この作成作業をアプリ化することで作成時間や手間を短縮することができると考え、今回の開発に至りました。  
 <br><br>
-<br><br>
-<br><br>
+
 
 ## ユーザー層について
 **医療機関、コールセンター、物流センターなど**  
 24時間稼働しており仮眠休憩が交代で必要な職場における、管理者の利用を想定しています。  
 <br><br>
-<br><br>
-<br><br>
+
 
 ## 機能紹介
 ### ログイン画面
@@ -55,8 +49,7 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
 「ID」は社員IDコードなどを想定しています。ログインは「ID」「パスワード」でログイン処理を行います。  
 また、Googleアカウントを用いてGoogleログインを行うことも可能としました。
 <br><br>
-<br><br>
-<br><br>
+
 
 ### プロジェクト(施設)選択
 管理者が複数のプロジェクト(施設)でのシフト作成を行う可能性も考慮し  
@@ -65,29 +58,24 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
 
 <img src="images/calendarimage.png" width="600" alt="カレンダー画像">
 <br><br>
-<br><br>
-<br><br>
-  
+
 ## シフト作成：夜勤編
 **夜勤[ブルー]のアイコンでシフト作成画面へ進みます。シフト作成は2STEPです。**
 <br><br>
-<br><br>
-<br><br>
+
   
 ### 1. スタッフ・休憩(仮眠)室選択
 勤務スタッフの人数にあった休憩室を選択します。
   
 ![デモ](https://i.gyazo.com/e8abd08f7b698ad8488590c5f3fbfb8c.gif)
 <br><br>
-<br><br>
-<br><br>
+
   
 ### 2. グループ選択
 グループは施設内での担当や小グループのこと指します。  
 例：リーダー、〇階担当、救急部門、指令室担当、品質担当 など
 <br><br>
-<br><br>
-<br><br>
+
   
 ### 3. シフト表示
 下記条件を基にシフト自動作成します。
@@ -98,8 +86,6 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
   
 ![デモ](https://i.gyazo.com/821460cb0b98e15161d44ef45ad0411b.gif)
 <br><br>
-<br><br>
-<br><br>
   
 ### 4. 編集画面
 シフト自動作成後に「休憩場所」「休憩開始時間」「コメント」の編集が可能です  
@@ -107,8 +93,7 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
    
 ![デモ](https://i.gyazo.com/bbe658535d43b05a10586453b65e54ef.gif)
 <br><br>
-<br><br>
-<br><br>
+
   
 ## シフト作成：日勤編
 **日勤[オレンジ]のアイコンでシフト作成画面へ進みます。シフト作成は2STEPです。**  
@@ -118,8 +103,6 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
 ### 2. グループ/休憩希望選択  
 ![デモ](https://i.gyazo.com/2d893d4c00fa1a38b91a700ff4000e67.gif)
 <br><br>
-<br><br>
-<br><br>
   
 ### 3. シフト表示
 選択した情報を基にアプリがシフトを自動作成します。  
@@ -128,14 +111,10 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
    
 ![デモ](https://i.gyazo.com/daddba5be3751b430b4dbef82d35a344.gif)
 <br><br>
-<br><br>
-<br><br>
   
 ## シフトの出力
 作成したシフトは保存され、カレンダーから参照・編集が可能となります。  
 また、作成したシフトをPDF出力でき印刷することも可能です。  
-<br><br>
-<br><br>
 <br><br>
   
 ## 技術構成について
@@ -170,4 +149,5 @@ https://shiftmate-app-f4dad2196d7c.herokuapp.com/
   
 
 ### 画面遷移図
-Figma： https://www.figma.com/files/team/1541707923313849220/project/439874672/%E5%8D%92%E6%A5%AD%E5%88%B6%E4%BD%9C?fuid=1534487141311269457
+**Figma**  
+https://www.figma.com/files/team/1541707923313849220/project/439874672/%E5%8D%92%E6%A5%AD%E5%88%B6%E4%BD%9C?fuid=1534487141311269457
