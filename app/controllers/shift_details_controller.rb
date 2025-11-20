@@ -89,6 +89,7 @@ class ShiftDetailsController < ApplicationController
       rest_start_time: rest_start_hour,
       rest_end_time: rest_end_hour,
       break_room_id: detail.break_room_id,
+      break_room_color: detail.break_room&.color,
       comment: detail.comment
     }
   end

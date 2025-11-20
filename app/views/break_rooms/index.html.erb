@@ -12,8 +12,17 @@
       <tbody>
         <% @break_rooms.each do |break_room| %>
           <tr>
-            <td class="fw-bold">
-              <i class="bi bi-door-closed-fill me-2 text-secondary"></i><%= break_room.name %>
+            <td class="fw-bold d-flex align-items-center">
+              <span style="
+                    display:inline-block;
+                    width:16px;
+                    height:16px;
+                    border-radius:50%;
+                    background-color:<%= break_room.color || '#C9C9C9' %>;
+                    margin-right:10px;
+                  ">
+              </span>
+              <%= break_room.name %>
             </td>
             <td class="text-center">
               <%= link_to "編集", edit_project_break_room_path(@project, break_room),

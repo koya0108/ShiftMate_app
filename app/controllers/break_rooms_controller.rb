@@ -47,6 +47,6 @@ class BreakRoomsController < ApplicationController
   end
 
   def break_room_params
-    params.require(:break_room).permit(:name)
+    params.require(:break_room).permit(:name, :color)
   end
 end
