@@ -2,6 +2,22 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="shift-detail"
 export default class extends Controller {
+
+  connect() {
+    this.breakRooms = JSON.parse(
+      this.element.dataset.shiftDetailBreakRooms || "[]"
+    )
+
+     // ★ 初期表示の select に色を設定
+    this.element.querySelectorAll('select[data-field="break_room_id"]').forEach(select => {
+      const value = select.value
+      const br = this.breakRooms.find(b => b.id == value)
+      if (br) {
+        select.style.color = br.color
+      }
+    })
+    }
+
   update(event) {
     const select = event.target
     const id = select.dataset.shiftDetailId
@@ -33,6 +49,13 @@ export default class extends Controller {
       .then(data => {
         if (data.success) {
           select.dataset.previousValue = value
+
+          // ★ 休憩室の色を select に反映
+          if (field === "break_room_id") {
+            const br = this.breakRooms.find(b => b.id == value)
+            if (br) select.style.color = br.color
+          }
+
           this.refreshRow(data.detail)
         } else {
           alert("更新に失敗しました: " + data.errors.join(", "))
@@ -54,33 +77,33 @@ export default class extends Controller {
     const table = row.closest("table[data-shift-detail-shift-type]")
     const shiftType = table ? table.dataset.shiftDetailShiftType : "night"
 
-    // 既存の色をリセット
-    row.querySelectorAll("td.time-cell").forEach(td => td.classList.remove("bg-info"))
+    const color = detail.break_room_color || "#4A90E2"
 
-    // 小数を扱えるように
+    // 既存の色をリセット
+    row.querySelectorAll("td.time-cell").forEach(td => {
+      td.classList.remove("bg-info")
+      td.style.backgroundColor = ""
+    })
+
     const start = parseFloat(detail.rest_start_time)
     const end   = parseFloat(detail.rest_end_time)
 
     row.querySelectorAll("td.time-cell").forEach(td => {
       const cellHour = this.parseTimeToFloat(td.dataset.hour)
 
-      // 夜勤と日勤で異なる補正
       let normalizedCellHour
-
       if (shiftType === "night") {
-        // 夜勤: 18〜33 のみ +24 補正
         normalizedCellHour = cellHour < 18 ? cellHour + 24 : cellHour
       } else {
-        // 日勤: 10〜15 など通常通り
         normalizedCellHour = cellHour
       }
 
-      // 時間範囲に含まれていれば塗りつぶし
       if (normalizedCellHour >= start && normalizedCellHour < end) {
-        td.classList.add("bg-info")
+        td.style.backgroundColor = color
       }
     })
   }
+
   parseTimeToFloat(timeStr) {
     const [h, m] = timeStr.split(":").map(Number)
     return h + (m / 60)

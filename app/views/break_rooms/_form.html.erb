@@ -4,6 +4,21 @@
     <%= f.text_field :name, class: "form-control form-control-lg", placeholder: "例: 休憩室A" %>
   </div>
 
+  <div class="mb-4">
+    <%= f.label :color, "カラー設定", class: "form-label fw-bold" %>
+    <select name="break_room[color]" id="break_room_color" class="form-select form-select-lg">
+      <option value="#4A90E2" style="background-color:#4A90E2; color: white;"> Blue</option>
+      <option value="#7DBE76" style="background-color:#7DBE76; color: white;"> Green</option>
+      <option value="#F2A65A" style="background-color:#F2A65A; color: black;"> Orange</option>
+      <option value="#9B7EDE" style="background-color:#9B7EDE; color: white;"> Purple</option>
+      <option value="#5ABFAF" style="background-color:#5ABFAF; color: black;"> Teal</option>
+      <option value="#E7A0A0" style="background-color:#E7A0A0; color: black;"> Pink</option>
+      <option value="#F7E38D" style="background-color:#F7E38D; color: black;"> Yellow</option>
+      <option value="#C9C9C9" style="background-color:#C9C9C9; color: black;"> Gray</option>
+    </select>
+    <small class="text-muted"></small>
+  </div>
+
   <div class="text-center">
     <%= f.submit "保存する", class: "btn btn-success btn-lg px-5 shadow-sm" %>
   </div>
