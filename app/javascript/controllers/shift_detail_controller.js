@@ -77,7 +77,7 @@ export default class extends Controller {
     const table = row.closest("table[data-shift-detail-shift-type]")
     const shiftType = table ? table.dataset.shiftDetailShiftType : "night"
 
-    const color = detail.break_room_color || "#4A90E2"
+    const color = detail.break_room_color || "#0dcaf0"
 
     // 既存の色をリセット
     row.querySelectorAll("td.time-cell").forEach(td => {

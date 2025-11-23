@@ -298,3 +298,8 @@ body.with-sidebar #sidebar {
   max-width: 100% !important;
   box-sizing: border-box;
 }
+
+table.shift-table tr.group-row td {
+  background-color: #f0f0f0 !important;
+  font-weight: bold;
+}

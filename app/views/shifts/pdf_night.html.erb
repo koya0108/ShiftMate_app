@@ -1,4 +1,7 @@
-<h2><%= @shift.shift_date.strftime("%Y-%m-%d") %> のシフト</h2>
+<div class="d-flex align-items-center gap-5 fs-4">
+  <span><%= @shift.shift_date.strftime("%Y-%m-%d") %> のシフト（日勤）</span>
+  <span>勤務スタッフ: <%= @shift.shift_details.count %>名</span>
+</div>
 
 <table>
   <thead>

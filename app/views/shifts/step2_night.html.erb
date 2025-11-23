@@ -3,6 +3,9 @@
   <p class="text-center text-muted mb-4">
     対象日: <span class="fw-bold"><%= @date %></span>
   </p>
+  <p class="text-center text-muted mb-4">
+    選択スタッフ：<span class="fw-bold"><%= @staffs.count %>名</span>
+  </p>
 
   <%= form_with(
         url: @shift&.persisted? ? update_step2_project_shift_path(@project,  @shift) : step2_create_project_shifts_path(@project),

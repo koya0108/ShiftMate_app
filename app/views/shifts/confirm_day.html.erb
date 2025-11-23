@@ -1,4 +1,5 @@
 <h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
+<h4>勤務スタッフ：<%= @shift.shift_details.count %>名（長日勤：<%= @shift.shift_details.where(preference: "long-shift").count %>名）</h4>
 
 <div class="shift-action-buttons" style="justify-content: flex-start;">
   <%= link_to "カレンダーへ戻る", project_shift_top_path, class: "btn btn-success" %>
@@ -10,9 +11,10 @@
       <tr>
         <th class="bg-secondary text-white">スタッフ</th>
         <th class="bg-secondary text-white comment-cell">コメント</th>
+        <th class="bg-secondary text-white">希望</th>
 
-        <% # 横軸：10:00〜16:00を30分刻みで生成 %>
-        <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
+        <% # 横軸：11:00〜17:00を30分刻みで生成 %>
+        <% times = (11 * 60...17 * 60).step(30).map { |m| m / 60.0 } %>
         <% times.each do |h| %>
           <% hour = h.floor %>
           <% minute = ((h - hour) * 60).to_i %>
@@ -24,13 +26,13 @@
     </thead>
 
     <tbody>
-      <% grouped = @shift.shift_details.includes(:staff)
-                    .group_by { |d| d.group_id }
-                    .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+      <% grouped = @shift.shift_details.includes(:staff, :break_room)
+                    .group_by { |d| d.group }
+                    .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
       <% grouped.each do |group_id, details| %>
         <!-- グループ行 -->
-        <tr style="background-color: white; font-weight: bold;">
+        <tr class="group-row">
           <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
 
@@ -41,6 +43,24 @@
 
             <!-- コメント -->
             <td><%= detail.comment.presence || "-" %></td>
+
+            <!-- 希望 -->
+            <td>
+              <% case detail.preference %>
+              <% when "early" %>
+                  ●
+              <% when "middle" %>
+                  ●
+              <% when "middle-late" %>
+                  ●
+              <% when "late" %>
+                  ●
+              <% when "long-shift" %>
+                  長日勤
+              <% else %>
+                  -
+              <% end %>
+            </td>
 
             <!-- 時間軸セル -->
             <% times.each do |h| %>
