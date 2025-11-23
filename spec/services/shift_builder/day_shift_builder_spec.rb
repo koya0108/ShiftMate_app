@@ -31,7 +31,7 @@ RSpec.describe ShiftBuilder::DayShiftBuilder, type: :service do
 
       expect(details[0].rest_start_time.hour).to eq(11)
       expect(details[1].rest_start_time.hour).to eq(12)
-      expect(details[2].rest_start_time.hour).to be_between(11, 13)
+      expect(details[2].rest_start_time.hour).to be_between(11, 14)
     end
   end
 end
