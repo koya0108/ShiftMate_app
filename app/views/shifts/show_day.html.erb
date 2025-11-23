@@ -1,4 +1,5 @@
 <h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
+<h4>勤務スタッフ：<%= @shift.shift_details.count %>名（長日勤：<%= @shift.shift_details.where(preference: "long-shift").count %>名）</h4>
 
 <div class="table-wrapper">
   <table class="table table-bordered table-hover text-center shift-table day-shift-table" data-controller="shift-detail" data-shift-detail-shift-type="day">
@@ -10,7 +11,7 @@
         <th class="bg-secondary text-white">開始時間</th>
 
         <% # 横軸：10:00〜16:00を30分刻みで生成 %>
-        <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
+        <% times = (11 * 60...17 * 60).step(30).map { |m| m / 60.0 } %>
         <% times.each do |h| %>
           <% hour = h.floor %>
           <% minute = ((h - hour) * 60).to_i %>
@@ -20,13 +21,13 @@
     </thead>
 
     <tbody>
-      <% grouped = @shift.shift_details.includes(:staff)
-                    .group_by { |d| d.group_id }
-                    .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+      <% grouped = @shift.shift_details.includes(:staff, :break_room)
+                    .group_by { |d| d.group }
+                    .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
       <% grouped.each do |group_id, details| %>
         <!-- グループ行 -->
-        <tr style="background-color: white; font-weight: bold;">
+        <tr class="group-row">
           <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
 
@@ -49,11 +50,15 @@
             <td>
               <% case detail.preference %>
               <% when "early" %>
-                  早め
+                  ●
               <% when "middle" %>
-                  中間
+                  ●
+              <% when "middle-late" %>
+                  ●
               <% when "late" %>
-                  遅め
+                  ●
+              <% when "long-shift" %>
+                  長日勤
               <% else %>
                   -
               <% end %>
@@ -63,15 +68,15 @@
               <% s = detail.rest_start_time_jst %>
               <% start_str = s.strftime("%H:%M") %>
 
-              <% # 10:00〜15:00の30分刻み選択肢を生成 %>
+              <% # 11:00〜16:00の30分刻み選択肢を生成 %>
               <% options = [] %>
-              <% (10..14).each do |hour| %>
+              <% (11..15).each do |hour| %>
                 <% ["00", "30"].each do |minute| %>
                   <% time_str = "#{format("%02d", hour)}:#{minute}" %>
                   <% options << [time_str, time_str] %>
                 <% end %>
               <% end %>
-              <% options << ["15:00", "15:00"] %> <!-- 終端を含める -->
+              <% options << ["16:00", "16:00"] %> <!-- 終端を含める -->
 
               <div class="d-flex align-items-center justify-content-center gap-2">
                 <%= select_tag "rest_start_time",

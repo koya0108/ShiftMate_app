@@ -1,12 +1,16 @@
-<h2><%= @shift.shift_date.strftime("%Y-%m-%d") %> のシフト（日勤）</h2>
-
+<div class="d-flex align-items-center gap-5 fs-4">
+  <span><%= @shift.shift_date.strftime("%Y-%m-%d") %> の日勤シフト</span>
+  <span>勤務スタッフ: <%= @shift.shift_details.count %>名</span>
+  <span>（長日勤: <%= @shift.shift_details.where(preference: "long-shift").count %>名）</span>
+</div>
 <table>
   <thead>
     <tr>
       <th>スタッフ</th>
       <th>コメント</th>
-      <% # 10:00〜16:00を30分刻みで表示 %>
-      <% times = (10 * 60...16 * 60).step(30).map { |m| m / 60.0 } %>
+      <th>希望</th>
+      <% # 11:00〜17:00を30分刻みで表示 %>
+      <% times = (11 * 60...17 * 60).step(30).map { |m| m / 60.0 } %>
       <% times.each do |h| %>
         <% hour = h.floor %>
         <% minute = ((h - hour) * 60).to_i %>
@@ -30,6 +34,23 @@
         <tr>
           <td><%= detail.staff.name %></td>
           <td><%= detail.comment.presence || "-" %></td>
+          <!-- 希望 -->
+          <td>
+            <% case detail.preference %>
+            <% when "early" %>
+                ●
+            <% when "middle" %>
+                ●
+            <% when "middle-late" %>
+                ●
+            <% when "late" %>
+                ●
+            <% when "long-shift" %>
+                長日勤
+            <% else %>
+                -
+            <% end %>
+          </td>
 
           <% times.each do |h| %>
             <% hour = h.floor %>

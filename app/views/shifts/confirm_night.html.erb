@@ -1,4 +1,6 @@
 <h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
+<h4>勤務スタッフ：<%= @shift.shift_details.count %>名</h4>
+
 <div class="shift-action-buttons" style="justify-content: flex-start;">
   <%= link_to "カレンダーへ戻る", project_shift_top_path, class: "btn btn-success" %>
 </div>
@@ -18,12 +20,12 @@
 
     <tbody>
       <% grouped = @shift.shift_details.includes(:staff, :break_room)
-                    .group_by { |d| d.group_id }
-                    .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+                    .group_by { |d| d.group }
+                    .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
       <% grouped.each do |group_id, details| %>
         <!-- グループ行 -->
-        <tr style="background-color: white; font-weight: bold;">
+        <tr class="group-row">
           <td colspan="19"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
 
@@ -43,8 +45,12 @@
               <% date = (h >= 24) ? @shift.shift_date + 1.day : @shift.shift_date
                 current_time = Time.zone.local(date.year, date.month, date.day, h % 24)
                 active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time)
+
+                room_color = detail.break_room&.color || "#4A90E2"
               %>
-              <td class="time-cell <%= 'bg-info' if active %>" data-hour="<%= h %>"></td>
+              <td class="time-cell" data-hour="<%= format('%02d:00', h % 24) %>"
+                        style="<%= active ? "background-color: #{room_color};" : "" %>">
+              </td>
             <% end %>
           </tr>
         <% end %>

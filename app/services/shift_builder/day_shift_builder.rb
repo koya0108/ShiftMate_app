@@ -45,11 +45,25 @@ module ShiftBuilder
             case pref
             when "early" then slots[0] # 11-12時
             when "middle" then slots[1] # 12-13時
-            when "late" then slots[2] # 13-14時
+            when "middle-late" then slots[2] # 13-14時
+            when "late" then slots[3] # 14~15時
+            when "long-shift" then slots[4] #16時~17時
             else
-              # 希望なし→グループ内で最も少ない枠に振り分け
-              slots.min_by { |s| group_usage[group_id][s] }
+              nil # 希望なし
             end
+
+        if slot.nil?
+            # 希望なしの時のスロット（11時～15時）
+          normal_slots = slots[0..3]
+
+          # 各スロットの使用回数から最小値を取る
+          min_usage = normal_slots.map { |s| group_usage[group_id][s] }.min
+
+          candidates = normal_slots.select { |s| group_usage[group_id][s] == min_usage }
+
+          # ランダムに一つ選ぶ
+          slot = candidates.sample
+        end
 
         shift.shift_details.create!(
             staff: staff,
@@ -65,15 +79,15 @@ module ShiftBuilder
     end
 
     def generate_slots
-        start_time = Time.zone.local(@date.year, @date.month, @date.day, 11, 0, 0)
-        end_time = Time.zone.local(@date.year, @date.month, @date.day, 14, 0, 0)
+      base = Time.zone.local(@date.year, @date.month, @date.day)
 
-        slots = []
-        while start_time < end_time
-        slots << { start: start_time, end: start_time + SLOT_LENGTH }
-        start_time += SLOT_LENGTH
-        end
-        slots
+      [
+        { start: base + 11.hours, end: base + 12.hours },
+        { start: base + 12.hours, end: base + 13.hours },
+        { start: base + 13.hours, end: base + 14.hours },
+        { start: base + 14.hours, end: base + 15.hours },
+        { start: base + 16.hours, end: base + 17.hours }
+      ]
     end
   end
 end

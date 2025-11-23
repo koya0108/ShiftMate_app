@@ -1,4 +1,5 @@
 <h2><%= @shift.shift_date.strftime("%Y-%m-%d") %></h2>
+<h4>勤務スタッフ：<%= @shift.shift_details.count %>名</h4>
 
 <div class="table-wrapper">
   <table class="table table-bordered table-hover text-center shift-table night-shift-table"
@@ -19,12 +20,12 @@
 
     <tbody>
       <% grouped = @shift.shift_details.includes(:staff, :break_room)
-                    .group_by { |d| d.group_id }
-                    .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+                    .group_by { |d| d.group }
+                    .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
       <% grouped.each do |group_id, details| %>
         <!-- グループ行 -->
-        <tr style="background-color: white; font-weight: bold;">
+        <tr class="group-row">
           <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
 

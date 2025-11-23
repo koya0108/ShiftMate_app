@@ -3,6 +3,9 @@
   <p class="text-center text-muted mb-4">
     対象日: <span class="fw-bold"><%= @date %></span>
   </p>
+  <p class="text-center text-muted mb-4">
+    選択スタッフ：<span class="fw-bold"><%= @staffs.count %>名</span>
+  </p>
 
   <%= form_with(
         url: @shift&.persisted? ? update_step2_project_shift_path(@project,  @shift) : step2_create_project_shifts_path(@project),
@@ -49,9 +52,11 @@
                 <%= select_tag "preferences[#{staff.id}]",
                       options_for_select([
                         ["", "none"],
-                        ["早め(11~12時)", "early"],
-                        ["中間(12~13時)", "middle"],
-                        ["遅め(13~14時)", "late"]
+                        ["11時~", "early"],
+                        ["12時~", "middle"],
+                        ["13時~", "middle-late"],
+                        ["14時~", "late"],
+                        ["16時~(長日勤)", "long-shift"]
                       ], "none"),
                       class: "form-select form-select-sm" %>
               </td>
