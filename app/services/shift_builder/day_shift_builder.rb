@@ -47,13 +47,13 @@ module ShiftBuilder
             when "middle" then slots[1] # 12-13時
             when "middle-late" then slots[2] # 13-14時
             when "late" then slots[3] # 14~15時
-            when "long-shift" then slots[4] #16時~17時
+            when "long-shift" then slots[4] # 16時~17時
             else
               nil # 希望なし
             end
 
         if slot.nil?
-            # 希望なしの時のスロット（11時～15時）
+          # 希望なしの時のスロット（11時～15時）
           normal_slots = slots[0..3]
 
           # 各スロットの使用回数から最小値を取る
