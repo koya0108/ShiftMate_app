@@ -7,6 +7,6 @@ class CreateStaffBreakRoomNgs < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :staff_break_room_ngs, [:staff_id, :break_room_id], unique: true
+    add_index :staff_break_room_ngs, [ :staff_id, :break_room_id ], unique: true
   end
 end

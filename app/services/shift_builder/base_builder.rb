@@ -5,7 +5,14 @@ module ShiftBuilder
     def initialize(project:, date:, staffs:, break_rooms:, staff_groups:, user:)
       @project = project
       @date = date.to_date
-      @staffs = staffs.includes(:ng_break_rooms)
+
+      @staffs =
+        if staffs.respond_to?(:includes)
+          staffs.includes(:ng_break_rooms)
+        else
+          staffs
+        end
+
       @break_rooms = break_rooms
       @staff_groups = staff_groups || {}
       @user = user

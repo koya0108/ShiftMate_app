@@ -105,7 +105,7 @@ module ShiftBuilder
           assignments[slot_index][room_index] = staff
           assigned_ids << staff.id
           @assigned_counts[staff.id] += 1
-          remaining_staffs -= [staff]
+          remaining_staffs -= [ staff ]
         end
       end
 
@@ -164,7 +164,7 @@ module ShiftBuilder
       slots = []
       next_day = date + 1.day
 
-      [0, 2, 4].each do |h|
+      [ 0, 2, 4 ].each do |h|
         start_time = Time.zone.local(next_day.year, next_day.month, next_day.day, h)  # 翌日
         end_time   = start_time + SLOT_LENGTH
 
