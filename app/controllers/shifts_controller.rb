@@ -21,26 +21,31 @@ class ShiftsController < ApplicationController
     @break_rooms = @project.break_rooms
 
     data = session[:shift_data]
+
     if data.present?
+      # セッションがあればセッションを優先
       @selected_staff_ids = data["staff_ids"] || []
       @selected_break_room_ids = data["break_room_ids"] || []
       @date = data["date"]
     else
+      # 新規アクセスまたはエラー直後のparamsを復元
       @selected_staff_ids = []
       @selected_break_room_ids = []
       @date = params[:date]
     end
 
-    # 日勤・夜勤viewを分ける
-    if @shift_category == "day"
-      render "shifts/step1_day"
-    else
-      render "shifts/step1_night"
-    end
+    render_step1_view
   end
 
   def step1_create
     @shift_category = params[:shift_category] || "night"
+
+    session[:shift_data] = {
+      "date" => params[:date],
+      "staff_ids" => params[:staff_ids] || [],
+      "break_room_ids" => params[:break_room_ids] || [],
+      "shift_category" => @shift_category
+    }
 
     # 入力チェック
     if params[:staff_ids].blank?
@@ -52,6 +57,18 @@ class ShiftsController < ApplicationController
     if @shift_category == "night" && params[:break_room_ids].blank?
       flash[:alert] = "休憩室を1つ以上選択してください"
       return redirect_to step1_project_shifts_path(@project, date: params[:date], shift_category: @shift_category)
+    end
+
+    if @shift_category == "night"
+      staff_count = params[:staff_ids].size
+      break_room_count = params[:break_room_ids].size
+
+      max_capacity = break_room_count * 3
+
+      if staff_count > max_capacity
+        flash[:alert] = "選択された休憩室ではスタッフ全員を0～6時に配置できません"
+        return redirect_to step1_project_shifts_path(@project, date: params[:date], shift_category: @shift_category)
+      end
     end
 
     session[:shift_data] = {
@@ -106,9 +123,13 @@ class ShiftsController < ApplicationController
     return redirect_to step1_project_shifts_path(@project), alert: "データがありません" if data.blank?
 
     @shift = @project.shifts.find(params[:id])
-    staffs = Staff.where(id: data["staff_ids"])
+
+    selected_staff_ids = data["staff_ids"].map(&:to_s)
+
+    staffs = Staff.where(id: selected_staff_ids)
     break_rooms = data["break_room_ids"].present? ? BreakRoom.where(id: data["break_room_ids"]) : []
     date = data["date"]
+
     staff_groups = params[:group_ids] || {}
     preferences = params[:preferences] || {}
     shift_category = data["shift_category"] || "night"
@@ -149,9 +170,10 @@ class ShiftsController < ApplicationController
     return redirect_to step1_project_shifts_path(@project), alert: "データがありません" if data.blank?
 
     @shift_category = data["shift_category"] || "night"
+    selected_staff_ids = data["staff_ids"].map(&:to_s)
 
     # 共通データ取得
-    staffs = Staff.where(id: data["staff_ids"])
+    staffs = Staff.where(id: selected_staff_ids)
     break_rooms = data["break_room_ids"].present? ? BreakRoom.where(id: data["break_room_ids"]) : []
     date = data["date"]
     staff_groups = params[:group_ids] || {}
@@ -260,6 +282,14 @@ class ShiftsController < ApplicationController
   end
 
   private
+
+  def render_step1_view
+    if @shift_category == "day"
+      render "shifts/step1_day"
+    else
+      render "shifts/step1_night"
+    end
+  end
 
   def set_project
     @project = current_user.projects.find(params[:project_id])

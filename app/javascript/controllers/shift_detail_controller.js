@@ -8,15 +8,30 @@ export default class extends Controller {
       this.element.dataset.shiftDetailBreakRooms || "[]"
     )
 
-     // ★ 初期表示の select に色を設定
+    // ★ 初期表示の select に色を設定
     this.element.querySelectorAll('select[data-field="break_room_id"]').forEach(select => {
       const value = select.value
       const br = this.breakRooms.find(b => b.id == value)
-      if (br) {
-        select.style.color = br.color
+      if (br) select.style.color = br.color
+    })
+
+    // ★ 初期描画の段階でも時間軸に色を付ける
+    this.element.querySelectorAll("tr[data-shift-detail-id]").forEach(row => {
+      const id = row.dataset.shiftDetailId
+      const start = row.dataset.restStart
+      const end = row.dataset.restEnd
+      const color = row.dataset.breakRoomColor
+
+      if (start && end) {
+        this.refreshRow({
+          id: id,
+          rest_start_time: start,
+          rest_end_time: end,
+          break_room_color: color
+        })
       }
     })
-    }
+  }
 
   update(event) {
     const select = event.target
@@ -69,43 +84,62 @@ export default class extends Controller {
       })
   }
 
-  // 時間軸セルの再描画
+ 
+  // ★ 時間軸セルの再描画（夜勤/日勤を自動判別）
   refreshRow(detail) {
     const row = document.querySelector(`tr[data-shift-detail-id="${detail.id}"]`)
     if (!row) return
 
     const table = row.closest("table[data-shift-detail-shift-type]")
-    const shiftType = table ? table.dataset.shiftDetailShiftType : "night"
+    const shiftType = table ? table.dataset.shiftDetailShiftType : "day"
 
     const color = detail.break_room_color || "#0dcaf0"
 
-    // 既存の色をリセット
+    // 既存色リセット
     row.querySelectorAll("td.time-cell").forEach(td => {
-      td.classList.remove("bg-info")
       td.style.backgroundColor = ""
+      td.classList.remove("bg-info");
     })
 
-    const start = parseFloat(detail.rest_start_time)
-    const end   = parseFloat(detail.rest_end_time)
+    // ▼ start/end → 正規化
+    const start = this.normalizeHour(detail.rest_start_time, shiftType)
+    const end   = this.normalizeHour(detail.rest_end_time, shiftType)
 
+    // ▼ 各時間セルを塗る
     row.querySelectorAll("td.time-cell").forEach(td => {
-      const cellHour = this.parseTimeToFloat(td.dataset.hour)
+      const cellHour = this.normalizeHour(td.dataset.hour, shiftType)
 
-      let normalizedCellHour
-      if (shiftType === "night") {
-        normalizedCellHour = cellHour < 18 ? cellHour + 24 : cellHour
-      } else {
-        normalizedCellHour = cellHour
-      }
-
-      if (normalizedCellHour >= start && normalizedCellHour < end) {
+      if (cellHour >= start && cellHour < end) {
         td.style.backgroundColor = color
       }
     })
   }
 
-  parseTimeToFloat(timeStr) {
-    const [h, m] = timeStr.split(":").map(Number)
-    return h + (m / 60)
+  // ★ "HH:MM" → 日勤/夜勤対応の内部時間へ変換
+  normalizeHour(timeVal, shiftType) {
+    let h, m = 0;
+
+    // 数字だけ -> HH:00 に補正
+    if (typeof timeVal === "string" && /^\d+$/.test(timeVal)) {
+      timeVal = `${timeVal.padStart(2, "0")}:00`;
+    }
+
+    if (typeof timeVal === "string" && timeVal.includes(":")) {
+      const [hour, min] = timeVal.split(":").map(Number);
+      h = hour;
+      m = min;
+    } else if (typeof timeVal === "number") {
+      h = timeVal;
+    } else {
+      return 0;
+    }
+
+    let value = h + m / 60;
+
+    if (shiftType === "night" && value <= 9) {
+      value += 24;
+    }
+
+    return value;
   }
 }

@@ -202,7 +202,7 @@ body.with-sidebar #sidebar {
 .shift-table {
   width: 100%; /* PCでは画面幅いっぱい */
   min-width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: collapse;
 }
 
@@ -221,7 +221,7 @@ body.with-sidebar #sidebar {
 
 .night-shift-table th,
 .night-shift-table td {
-  white-space: nowrap !important;
+  white-space: normal !important;
   vertical-align: middle;
   text-align: center;
 }
@@ -302,4 +302,43 @@ body.with-sidebar #sidebar {
 table.shift-table tr.group-row td {
   background-color: #f0f0f0 !important;
   font-weight: bold;
+}
+
+/* NG休憩室セル内のラッパー */
+.ng-room-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-items: center;
+  padding: 1px 0;
+  box-sizing: border-box;
+}
+
+/* NG休憩室バッジ */
+.ng-room-badge {
+  background-color: #f8d7da;
+  color: #b02a37;
+  border: 1px solid #b02a37;
+  border-radius: 6px;
+  padding: 0px 4px;
+  font-size: 10px;
+
+  flex: 0 0 calc(33.3% - 2px); /* ← 3列構成の基礎 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+.ng-room-col {
+  width: 260px;
+  max-width: 260px;
+  vertical-align: top;
+  padding: 2px 4px;
+  white-space: normal;
+}
+/* 夜勤テーブルの「開始時間」列の select を見やすくする */
+.night-shift-table td:nth-child(5) select {
+  width: 100%;
+  min-width: 80px;        /* 横幅が潰れないように */
+  font-size: 0.9rem;      /* 小さくなりすぎ防止 */
 }

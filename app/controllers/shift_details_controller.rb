@@ -66,28 +66,10 @@ class ShiftDetailsController < ApplicationController
 
   # JSONレスポンス
   def to_detail_json(detail)
-    base_date = detail.shift.shift_date
-    s = detail.rest_start_time.in_time_zone("Tokyo")
-    e = detail.rest_end_time.in_time_zone("Tokyo")
-
-    rest_start_hour =
-      if s.to_date > base_date.to_date
-        s.hour + 24 + (s.min / 60.0)
-      else
-        s.hour + (s.min / 60.0)
-      end
-
-    rest_end_hour =
-      if e.to_date > base_date.to_date
-        e.hour + 24 + (e.min / 60.0)
-      else
-        e.hour + (e.min / 60.0)
-      end
-
     {
       id: detail.id,
-      rest_start_time: rest_start_hour,
-      rest_end_time: rest_end_hour,
+      rest_start_time: detail.rest_start_time.strftime("%H:%M"),
+      rest_end_time:   detail.rest_end_time.strftime("%H:%M"),
       break_room_id: detail.break_room_id,
       break_room_color: detail.break_room&.color,
       comment: detail.comment

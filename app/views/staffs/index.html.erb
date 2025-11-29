@@ -25,6 +25,7 @@
           <tr>
             <th scope="col">名前</th>
             <th scope="col">役職</th>
+            <th scope="col" style="width: 200px;">NG休憩室</th>
             <th scope="col">備考</th>
             <th scope="col" class="text-center" style="width: 160px;"></th>
           </tr>
@@ -36,6 +37,20 @@
                 <i class="bi bi-person-fill me-2 text-secondary"></i><%= staff.name %>
               </td>
               <td><%= staff.position.presence || "未設定" %></td>
+              <td>
+                <% if staff.ng_break_rooms.any? %>
+                  <div class="d-flex flex-wrap gap-1">
+                    <% staff.ng_break_rooms.each do |room| %>
+                      <span class="badge rounded-pill text-white"
+                            style="background-color: <%= room.color %>; font-size: 0.75rem;">
+                        <%= room.name %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% else %>
+                  -
+                <% end %>
+              </td>
               <td><%= staff.comment.presence || "-" %></td>
               <td class="text-center">
                 <%= link_to "編集", edit_project_staff_path(@project, staff), class: "btn btn-sm btn-outline-success me-2" %>

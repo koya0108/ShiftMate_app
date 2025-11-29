@@ -7,55 +7,90 @@
 
 <div class="table-wrapper">
   <table class="table table-bordered table-hover text-center shift-table night-shift-table">
+
     <thead>
       <tr>
         <th class="bg-secondary text-white">スタッフ</th>
+        <th class="bg-secondary text-white">休憩室NG</th>
         <th class="bg-secondary text-white">休憩場所</th>
         <th class="bg-secondary text-white comment-cell">コメント</th>
-        <% (18..33).each do |h| %>
-          <th class="bg-secondary text-white time-col"><%= "#{h % 24}:00" %></th>
+
+        <!-- ★ show_night と同じ時間軸（22〜32） -->
+        <% (22..32).each do |h| %>
+          <th class="bg-secondary text-white time-col">
+            <%= "%02d:00" % (h % 24) %>
+          </th>
         <% end %>
       </tr>
     </thead>
 
     <tbody>
       <% grouped = @shift.shift_details.includes(:staff, :break_room)
-                    .group_by { |d| d.group }
-                    .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
+                          .group_by(&:group)
+                          .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
       <% grouped.each do |group_id, details| %>
-        <!-- グループ行 -->
+        <!-- グループ名 -->
         <tr class="group-row">
-          <td colspan="19"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
+          <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
 
         <% details.each do |detail| %>
+          <% rest_s = detail.rest_start_time %>
+          <% rest_e = detail.rest_end_time %>
+          <% base   = @shift.shift_date %>
+
+          <% rest_s_fix = Time.zone.local(base.year, base.month, base.day, rest_s.hour) +
+                          (rest_s.to_date > base ? 1.day : 0) %>
+
+          <% rest_e_fix = Time.zone.local(base.year, base.month, base.day, rest_e.hour) +
+                          (rest_e.to_date > base ? 1.day : 0) %>
+
           <tr>
+
             <!-- スタッフ名 -->
             <td class="text-start"><%= detail.staff.name %></td>
 
-            <!-- 休憩室 -->
+            <!-- ★ NG休憩室（show_night と同じ構造） -->
+            <td class="ng-room-col">
+              <div class="ng-room-cell">
+                <% if detail.staff.ng_break_rooms.any? %>
+                  <% detail.staff.ng_break_rooms.each do |room| %>
+                    <span class="ng-room-badge"><%= room.name %></span>
+                  <% end %>
+                <% else %>
+                  <span class="text-muted small">-</span>
+                <% end %>
+              </div>
+            </td>
+
+            <!-- 休憩場所 -->
             <td><%= detail.break_room&.name || "-" %></td>
 
             <!-- コメント -->
             <td><%= detail.comment.presence || "-" %></td>
 
             <!-- 時間軸セル -->
-            <% (18..33).each do |h| %>
-              <% date = (h >= 24) ? @shift.shift_date + 1.day : @shift.shift_date
-                current_time = Time.zone.local(date.year, date.month, date.day, h % 24)
-                active = (detail.rest_start_time...detail.rest_end_time).cover?(current_time)
+            <% (22..32).each do |h| %>
+              <% 
+                hour = h % 24
+                day  = h >= 24 ? base + 1.day : base
+                current_time = Time.zone.local(day.year, day.month, day.day, hour)
 
+                active = (rest_s_fix...rest_e_fix).cover?(current_time)
                 room_color = detail.break_room&.color || "#4A90E2"
               %>
-              <td class="time-cell" data-hour="<%= format('%02d:00', h % 24) %>"
-                        style="<%= active ? "background-color: #{room_color};" : "" %>">
+
+              <td class="time-cell"
+                  style="<%= active ? "background-color: #{room_color};" : "" %>">
               </td>
             <% end %>
+
           </tr>
         <% end %>
       <% end %>
     </tbody>
+
   </table>
 </div>
 
@@ -69,13 +104,13 @@
   <%= link_to confirm_project_shift_path(@project, @shift, format: :pdf),
               class: "btn btn-primary d-flex align-items-center px-4",
               target: "_blank" do %>
-      <i class="bi bi-file-earmark-pdf me-2"></i> PDF出力
+    <i class="bi bi-file-earmark-pdf me-2"></i> PDF出力
   <% end %>
 
   <%= button_to project_shift_path(@project, @shift),
-              method: :delete,
-              data: { "turbo-confirm": "本当に削除しますか？" },
-              class: "btn btn-danger" do %>
-  <i class="bi bi-trash me-2"></i> 削除
+                method: :delete,
+                data: { "turbo-confirm": "本当に削除しますか？" },
+                class: "btn btn-danger" do %>
+    <i class="bi bi-trash me-2"></i> 削除
   <% end %>
 </div>
