@@ -49,6 +49,6 @@ class StaffsController < ApplicationController
   end
 
   def staff_params
-    params.require(:staff).permit(:name, :position, :comment)
+    params.require(:staff).permit(:name, :position, :comment, ng_break_room_ids: [])
   end
 end

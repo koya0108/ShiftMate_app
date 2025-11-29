@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_20_055438) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_23_052023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_20_055438) do
     t.index ["user_id"], name: "index_shifts_on_user_id"
   end
 
+  create_table "staff_break_room_ngs", force: :cascade do |t|
+    t.bigint "staff_id", null: false
+    t.bigint "break_room_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["break_room_id"], name: "index_staff_break_room_ngs_on_break_room_id"
+    t.index ["staff_id", "break_room_id"], name: "index_staff_break_room_ngs_on_staff_id_and_break_room_id", unique: true
+    t.index ["staff_id"], name: "index_staff_break_room_ngs_on_staff_id"
+  end
+
   create_table "staffs", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.string "name"
@@ -107,5 +117,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_20_055438) do
   add_foreign_key "shift_details", "staffs"
   add_foreign_key "shifts", "projects"
   add_foreign_key "shifts", "users"
+  add_foreign_key "staff_break_room_ngs", "break_rooms"
+  add_foreign_key "staff_break_room_ngs", "staffs"
   add_foreign_key "staffs", "projects"
 end

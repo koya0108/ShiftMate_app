@@ -16,6 +16,24 @@
         </div>
 
         <div class="mb-4">
+          <label class="form-label fw-bold">休憩室NG選択</label>
+
+          <%= hidden_field_tag "staff[ng_break_room_ids][]", "" %>
+
+          <% @project.break_rooms.each do |room| %>
+            <div class="form-check">
+              <%= check_box_tag "staff[ng_break_room_ids][]",
+                  room.id,
+                  staff.ng_break_room_ids.include?(room.id),
+                  id: "ng_room_#{room.id}",
+                  class: "form-check-input" %>
+
+              <%= label_tag "ng_room_#{room.id}", room.name, class: "form-check-label" %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="mb-4">
           <%= f.label :comment, "備考", class: "form-label fw-bold" %>
           <%= f.text_field :comment, class: "form-control", maxlength: 15, placeholder: "15文字以内" %>
         </div>

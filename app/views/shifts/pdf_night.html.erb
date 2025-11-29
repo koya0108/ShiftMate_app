@@ -1,5 +1,5 @@
 <div class="d-flex align-items-center gap-5 fs-4">
-  <span><%= @shift.shift_date.strftime("%Y-%m-%d") %> のシフト（日勤）</span>
+  <span><%= @shift.shift_date.strftime("%Y-%m-%d") %> の夜勤シフト</span>
   <span>勤務スタッフ: <%= @shift.shift_details.count %>名</span>
 </div>
 
@@ -9,7 +9,7 @@
       <th>スタッフ</th>
       <th>休憩室</th>
       <th>コメント</th>
-      <% (18..33).each do |h| %>
+      <% (22..32).each do |h| %>
         <th><%= "#{h % 24}:00" %></th>
       <% end %>
     </tr>
@@ -32,7 +32,7 @@
           <td><%= detail.break_room&.name || "-" %></td>
           <td><%= detail.comment.presence || "-" %></td>
 
-          <% (18..33).each do |h| %>
+          <% (22..32).each do |h| %>
             <% current_time = Time.zone.parse("#{detail.rest_start_time.to_date} #{h % 24}:00") %>
             <% if (detail.rest_start_time...detail.rest_end_time).cover?(current_time) %>
               <td class="rest-cell"></td>
