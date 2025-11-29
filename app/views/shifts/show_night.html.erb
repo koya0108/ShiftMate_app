@@ -59,6 +59,7 @@
 
           <tr data-shift-detail-id="<%= detail.id %>"
               data-break-room-color="<%= detail.break_room&.color %>"
+              data-break-room-id="<%= detail.break_room_id %>"
               data-rest-start="<%= start_h_display %>"
               data-rest-end="<%= end_h_display %>"
           >
@@ -86,6 +87,10 @@
                       data-action="change->shift-detail#update"
                       data-shift-detail-id="<%= detail.id %>"
                       data-field="break_room_id">
+                <option value="" <%= "selected" if detail.break_room_id.nil? %>>
+                  ー
+                </option>
+
                 <% @break_rooms.each do |br| %>
                   <option value="<%= br.id %>"
                           <%= "selected" if br.id == detail.break_room_id %>
@@ -163,6 +168,7 @@
 
     <%= button_to finalize_project_shift_path(@project, @shift),
                   method: :patch,
+                  data: { turbo: false },
                   class: "btn btn-success d-flex align-items-center gap-2 px-4 py-2 shadow-sm border-0" do %>
       <i class="bi bi-check-circle"></i>
       <span>確定</span>
