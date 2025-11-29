@@ -138,8 +138,7 @@ body.with-sidebar #sidebar {
     width: 100%;
   }
 }
-
-/*トースト通知*/
+/* トースト通知 */
 .toast-container {
   position: fixed !important;
   top: 1rem;
@@ -158,6 +157,27 @@ body.with-sidebar #sidebar {
   font-size: 0.9rem;
   text-align: left;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.flash-toast p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.toast-body p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
+/* toast-body の line-height も詰める */
+.toast-body {
+  line-height: 1.2 !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
 }
 
 /* 成功／エラー */

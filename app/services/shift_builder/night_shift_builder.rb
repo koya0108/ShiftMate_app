@@ -121,7 +121,7 @@ module ShiftBuilder
           gkey = staff_groups[staff.id.to_s].presence || "ungrouped"
           group_slot_count[gkey][slot_index] += 1
 
-          remaining_staffs -= [staff]
+          remaining_staffs -= [ staff ]
         end
       end
 

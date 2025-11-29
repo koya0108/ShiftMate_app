@@ -223,7 +223,7 @@ class ShiftsController < ApplicationController
     session.delete(:shift_data)
 
     if builder.no_room_staffs.present?
-      flash[:alert] = "休憩室制約により休憩室に入れなかったスタッフがいます: #{builder.no_room_staffs.join(', ')}"
+      flash[:alert] = "制約により休憩室を割当できないスタッフがいます  :   #{builder.no_room_staffs.join(', ')}"
     end
 
     redirect_to project_shift_path(@project, target_shift), notice: notice_message
