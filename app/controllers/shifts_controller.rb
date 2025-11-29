@@ -162,6 +162,11 @@ class ShiftsController < ApplicationController
     end
 
     session.delete(:shift_data)
+
+    if builder.no_room_staffs.present?
+      flash[:alert] = "休憩室の制約により休憩室に入れなかったスタッフがいます: #{builder.no_room_staffs.join(', ')}"
+    end
+
     redirect_to project_shift_path(@project, @shift), notice: "シフトを更新しました"
   end
 
@@ -216,6 +221,11 @@ class ShiftsController < ApplicationController
     end
 
     session.delete(:shift_data)
+
+    if builder.no_room_staffs.present?
+      flash[:alert] = "制約により休憩室を割当できないスタッフがいます  :   #{builder.no_room_staffs.join(', ')}"
+    end
+
     redirect_to project_shift_path(@project, target_shift), notice: notice_message
   end
 
@@ -234,6 +244,16 @@ class ShiftsController < ApplicationController
   def confirm
     @shift = @project.shifts.find(params[:id])
     @shift_details = @shift.shift_details.includes(:staff, :break_room)
+
+    overlaps = overlap_messages(@shift_details)
+
+    # 休憩室重複チェック
+    if overlaps.any?
+      @shift.update(status: :draft)
+
+      flash[:alert] = "休憩室が重複しています：\n" + overlaps.join("\n")
+      return redirect_to project_shift_path(@project, @shift)
+    end
 
     respond_to do |format|
       format.html do
@@ -302,6 +322,89 @@ class ShiftsController < ApplicationController
     # URLのDateパラメータが前回と異なる場合、セッションをリセット
     if params[:date].present? && prev_date != params[:date]
       session.delete(:shift_data)
+    end
+  end
+
+  # 同じ休憩室で時間重複していないかチェック
+  def has_overlap_breaks?(details)
+    # スロット範囲（22時〜8時 → 内部的には 22..31 の 10 スロット）
+    slot_range = (22..31)
+
+    # スロットごとに { break_room_id => count } を管理
+    slot_room_counts = {}
+
+    slot_range.each do |slot|
+      slot_room_counts[slot] = Hash.new(0)
+    end
+
+    details.each do |d|
+      next if d.break_room_id.nil?
+
+      # 休憩開始と終了の “表示上の時刻” を正規化（夜勤だけ24時間加算）
+      s = normalize_hour_for_check(d.rest_start_time)
+      e = normalize_hour_for_check(d.rest_end_time)
+
+      # 22〜8時の各1時間スロットに滞在するか判定
+      slot_range.each do |slot|
+        if s <= slot && slot < e
+          slot_room_counts[slot][d.break_room_id] += 1
+          return true if slot_room_counts[slot][d.break_room_id] > 1
+        end
+      end
+    end
+
+    false
+  end
+
+  def normalize_hour_for_check(time)
+    h = time.hour
+    h += 24 if h < 9 # 夜勤ロジック：翌日0〜8時は 24〜32
+    h
+  end
+
+  # どのスロットが重複しているかを返す
+  def find_overlap_slots(details)
+    slot_range = (22..31)
+
+    slot_room_counts = {}
+    slot_range.each { |slot| slot_room_counts[slot] = Hash.new(0) }
+
+    overlaps = []
+
+    details.each do |d|
+      next if d.break_room_id.nil?
+
+      s = normalize_hour_for_check(d.rest_start_time)
+      e = normalize_hour_for_check(d.rest_end_time)
+
+      slot_range.each do |slot|
+        if s <= slot && slot < e
+          slot_room_counts[slot][d.break_room_id] += 1
+
+          if slot_room_counts[slot][d.break_room_id] == 2
+            overlaps << {
+              slot: slot,
+              break_room_id: d.break_room_id
+            }
+          end
+        end
+      end
+    end
+
+    overlaps
+  end
+
+  def overlap_messages(details)
+    overlaps = find_overlap_slots(details)
+
+    return [] if overlaps.empty?
+
+    overlaps.map do |o|
+      room = BreakRoom.find(o[:break_room_id])
+      start_h = o[:slot] % 24
+      end_h = (o[:slot] + 1) % 24
+
+      "#{room.name}:#{format('%02d:00', start_h)}～#{format('%02d:00', end_h)}"
     end
   end
 end

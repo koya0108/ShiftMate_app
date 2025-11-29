@@ -21,13 +21,15 @@ export default class extends Controller {
       const start = row.dataset.restStart
       const end = row.dataset.restEnd
       const color = row.dataset.breakRoomColor
+      const breakRoomId = row.dataset.breakRoomId
 
       if (start && end) {
         this.refreshRow({
           id: id,
           rest_start_time: start,
           rest_end_time: end,
-          break_room_color: color
+          break_room_color: color,
+          break_room_id: breakRoomId
         })
       }
     })
@@ -91,9 +93,15 @@ export default class extends Controller {
     if (!row) return
 
     const table = row.closest("table[data-shift-detail-shift-type]")
-    const shiftType = table ? table.dataset.shiftDetailShiftType : "day"
+    const shiftType = table ? table.dataset.shiftDetailShiftType : "day";
 
-    const color = detail.break_room_color || "#0dcaf0"
+    let color;
+
+    if (shiftType === "night" && !detail.break_room_id) {
+      color = "#e9ecef";
+    } else {
+      color = detail.break_room_color || "#0dcaf0";
+    }
 
     // 既存色リセット
     row.querySelectorAll("td.time-cell").forEach(td => {
