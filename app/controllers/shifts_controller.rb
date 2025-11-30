@@ -237,7 +237,7 @@ class ShiftsController < ApplicationController
 
     if @shift.shift_category == "day"
       @group_counts = ShiftServices::GroupHourCounter.new(@shift).call
-    end 
+    end
 
     if @shift.shift_category == "night"
       render "shifts/show_night"

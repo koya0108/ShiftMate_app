@@ -28,7 +28,7 @@ class ShiftDetailsController < ApplicationController
     # group_row の HTML を生成（ここが重要）
     group_row_html = render_to_string(
       partial: "shifts/group_row",
-      formats: [:html],
+      formats: [ :html ],
       locals: {
         group: group,
         times: @times,
