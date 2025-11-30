@@ -25,13 +25,17 @@
                     .group_by { |d| d.group }
                     .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
-      <% grouped.each do |group_id, details| %>
-        <!-- グループ行 -->
-        <tr class="group-row">
-          <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
-        </tr>
+      <% grouped.each do |group, details| %>
 
-        <% details.each do |detail| %>
+        <!-- グループ行 -->
+        <%= render partial: "shifts/group_row",
+                  locals: {
+                    group: group,
+                    times: @times,
+                    group_counts: @group_counts
+                  } %>
+
+        <% details.sort_by { |d| d.staff.created_at }.each do |detail| %>
           <tr data-shift-detail-id="<%= detail.id %>">
             <!-- スタッフ名 -->
             <td class="text-start"><%= detail.staff.name %></td>

@@ -17,16 +17,16 @@
 
   <tbody>
     <% grouped = @shift.shift_details.includes(:staff, :break_room)
-                   .group_by { |d| d.group_id }
-                   .sort_by { |g, _| g.nil? ? 1 : 0 } %>
+                   .group_by { |d| d.group }
+                   .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
-    <% grouped.each do |group_id, details| %>
+    <% grouped.each do |group, details| %>
       <!-- グループ行 -->
       <tr class="group-row">
-        <td colspan="19"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
+        <td colspan="19"><%= Group.find_by(id: group)&.name || "未所属" %></td>
       </tr>
 
-      <% details.each do |detail| %>
+      <% details.sort_by { |d| d.staff.created_at }.each do |detail| %>
         <tr>
           <td><%= detail.staff.name %></td>
           <td><%= detail.break_room&.name || "-" %></td>

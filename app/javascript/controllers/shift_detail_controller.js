@@ -73,7 +73,14 @@ export default class extends Controller {
             if (br) select.style.color = br.color
           }
 
+          // ★ 時間軸の色更新
           this.refreshRow(data.detail)
+
+          // ★ 勤務人数行（group_row）の差し替え
+          if (data.group_row_html && data.group_id !== undefined) {
+            this.updateGroupRow(data.group_id, data.group_row_html)
+          }
+
         } else {
           alert("更新に失敗しました: " + data.errors.join(", "))
           select.value = select.dataset.previousValue
@@ -86,7 +93,15 @@ export default class extends Controller {
       })
   }
 
- 
+  // ★ グループ行を差し替える
+  updateGroupRow(groupId, html) {
+    const target = document.querySelector(`#group_row_${groupId}`)
+
+    if (target) {
+      target.outerHTML = html
+    }
+  }
+
   // ★ 時間軸セルの再描画（夜勤/日勤を自動判別）
   refreshRow(detail) {
     const row = document.querySelector(`tr[data-shift-detail-id="${detail.id}"]`)
