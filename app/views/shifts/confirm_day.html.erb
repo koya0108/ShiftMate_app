@@ -30,13 +30,16 @@
                     .group_by { |d| d.group }
                     .sort_by { |group, _| [group.nil? ? 1 : 0, group&.created_at] } %>
 
-      <% grouped.each do |group_id, details| %>
+      <% grouped.each do |group, details| %>
         <!-- グループ行 -->
-        <tr class="group-row">
-          <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
-        </tr>
+        <%= render partial: "shifts/group_row_confirm",
+                  locals: {
+                    group: group,
+                    times: @times,
+                    group_counts: @group_counts
+                  } %>
 
-        <% details.each do |detail| %>
+        <% details.sort_by { |d| d.staff.created_at }.each do |detail| %>
           <tr>
             <!-- スタッフ名 -->
             <td class="text-start"><%= detail.staff.name %></td>

@@ -1,0 +1,17 @@
+<% gid = group&.id || "0" %>
+
+<tr class="group-row" id="group_row_<%= gid || 'none' %>">
+  <td colspan="4" class="fw-bold bg-secondary-subtle">
+    <%= group&.name || "未所属" %>
+  </td>
+
+  <% times.each do |h| %>
+    <% hour   = h.floor %>
+    <% minute = ((h - hour) * 60).to_i %>
+    <% time_key = format("%02d:%02d", hour, minute) %>
+
+    <td class="group-count-cell <%= 'half-hour' if minute == 30 %>">
+      <%= group_counts[gid]&.[](time_key) || 0 %>
+    </td>
+  <% end %>
+</tr>

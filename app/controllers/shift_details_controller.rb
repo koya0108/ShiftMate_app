@@ -4,27 +4,54 @@ class ShiftDetailsController < ApplicationController
   def update
     attrs = shift_detail_params.to_h
 
+    # ▼ rest_start_time の変更がある場合は rest_end_time を再計算
     if attrs["rest_start_time"].present?
       start_time = build_time_from_string(attrs["rest_start_time"])
       attrs["rest_start_time"] = start_time
 
-      # 日勤・夜勤で休憩時間を切り替え
       shift_type = @shift_detail.shift.shift_category
       duration = shift_type == "day" ? 1.hour : 2.hours
-
       attrs["rest_end_time"] = start_time + duration
     end
 
-    if @shift_detail.update(attrs)
-      render json: { success: true, detail: to_detail_json(@shift_detail) }
-    else
-      # DBの正しい状態に戻す
-      @shift_detail.reload
-      render json: {
-        success: false,
-        errors: @shift_detail.errors.full_messages,
-        detail: to_detail_json(@shift_detail)
-      }, status: :unprocessable_entity
+    @shift_detail.update(attrs)
+    @shift = @shift_detail.shift
+
+    # 勤務人数の計算
+    @group_counts = ShiftServices::GroupHourCounter.new(@shift).call
+    @times = (11 * 60...17 * 60).step(30).map { |m| m / 60.0 }
+
+    # どの group の行を更新すべきか
+    group = @shift_detail.group
+    group_id = group&.id || "none"
+
+    # group_row の HTML を生成（ここが重要）
+    group_row_html = render_to_string(
+      partial: "shifts/group_row",
+      formats: [:html],
+      locals: {
+        group: group,
+        times: @times,
+        group_counts: @group_counts
+      }
+    )
+
+    respond_to do |format|
+      format.json do
+        if @shift_detail.errors.empty?
+          render json: {
+            success: true,
+            detail: to_detail_json(@shift_detail),
+            group_id: group_id,
+            group_row_html: group_row_html
+          }
+        else
+          render json: {
+            success: false,
+            errors: @shift_detail.errors.full_messages
+          }, status: :unprocessable_entity
+        end
+      end
     end
   end
 

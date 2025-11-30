@@ -35,7 +35,7 @@
           <td colspan="20"><%= Group.find_by(id: group_id)&.name || "未所属" %></td>
         </tr>
 
-        <% details.each do |detail| %>
+        <% details.sort_by { |d| d.staff.created_at }.each do |detail| %>
           <% rest_s = detail.rest_start_time %>
           <% rest_e = detail.rest_end_time %>
           <% base   = @shift.shift_date %>

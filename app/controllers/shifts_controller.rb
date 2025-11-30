@@ -163,7 +163,7 @@ class ShiftsController < ApplicationController
 
     session.delete(:shift_data)
 
-    if builder.no_room_staffs.present?
+    if @shift_category == "night" && builder.no_room_staffs.present?
       flash[:alert] = "休憩室の制約により休憩室に入れなかったスタッフがいます: #{builder.no_room_staffs.join(', ')}"
     end
 
@@ -222,7 +222,7 @@ class ShiftsController < ApplicationController
 
     session.delete(:shift_data)
 
-    if builder.no_room_staffs.present?
+    if @shift_category == "night" && builder.no_room_staffs.present?
       flash[:alert] = "制約により休憩室を割当できないスタッフがいます  :   #{builder.no_room_staffs.join(', ')}"
     end
 
@@ -233,6 +233,11 @@ class ShiftsController < ApplicationController
     @shift = @project.shifts.find(params[:id])
     @shift_details = @shift.shift_details.includes(:staff, :break_room)
     @break_rooms = @project.break_rooms
+    @times = (11 * 60...17 * 60).step(30).map { |m| m / 60.0 }
+
+    if @shift.shift_category == "day"
+      @group_counts = ShiftServices::GroupHourCounter.new(@shift).call
+    end 
 
     if @shift.shift_category == "night"
       render "shifts/show_night"
@@ -244,6 +249,11 @@ class ShiftsController < ApplicationController
   def confirm
     @shift = @project.shifts.find(params[:id])
     @shift_details = @shift.shift_details.includes(:staff, :break_room)
+
+    if @shift.shift_category == "day"
+      @times = (11 * 60...17 * 60).step(30).map { |m| m / 60.0 }
+      @group_counts = ShiftServices::GroupHourCounter.new(@shift).call
+    end
 
     overlaps = overlap_messages(@shift_details)
 
