@@ -23,6 +23,10 @@
 
 ## サービスURL
 https://shiftmate-app-f4dad2196d7c.herokuapp.com/
+
+**テストアカウント**
+- ID：test
+- pass：password1234
 <br><br>
 
 ## サービス開発の背景
